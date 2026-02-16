@@ -43,10 +43,50 @@ macOSカレンダー(EventKit)と連携し、会議の開始時刻になった�
 
 ```bash
 pnpm tauri dev      # 開発サーバー起動
-pnpm tauri build    # プロダクションビルド (.app)
 ```
 
-## TODO
+## ビルド（重要）
 
-- [ ] トレイメニューに次の予定・今日のスケジュール表示
-- [ ] アプリアイコンのカスタマイズ
+ビルド時に以下の3つの環境変数が**必須**:
+
+```bash
+TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/galopen.key)" \
+TAURI_SIGNING_PRIVATE_KEY_PASSWORD="tauri" \
+APPLE_SIGNING_IDENTITY="-" \
+pnpm tauri build
+```
+
+### APPLE_SIGNING_IDENTITY="-" を忘れると何が起きるか
+
+- GitHubからダウンロードしたDMGが「壊れている」エラーになる
+- システム設定の「このまま開く」ボタンも表示されない
+- 自動アップデートも失敗する（tar.gz内のアプリも未署名になるため）
+- `APPLE_SIGNING_IDENTITY="-"` を付けるとad-hocコード署名され、「未確認の開発元」警告に変わり、システム設定から許可できる
+- ビルドログに `Signing with identity "-"` が表示されることを確認すること
+
+## リリース手順
+
+1. `src-tauri/tauri.conf.json` と `package.json` のバージョンを更新
+2. 上記の環境変数付きでビルド
+3. `pnpm release`（GitHub Releaseの作成 + DMG/tar.gz/sig/latest.jsonアップロード）
+
+## ランディングページ (`lp/`)
+
+pnpm workspaceパッケージとして `lp/` に Next.js ランディングページを配置。
+
+- **URL**: <https://galopen.kkweb.io>
+- **Tech**: Next.js 16 + Tailwind CSS v4 + next-intl (ja/en) + Biome + React Compiler
+- **構成**: App Router, `[locale]` ルーティング, Geist フォント
+- **i18n**: `messages/en.json`, `messages/ja.json` にテキスト管理
+- **開発**: `pnpm --filter galopen-lp dev`
+- **ビルド**: `pnpm --filter galopen-lp build`
+- 他のリポジトリ(`chain` 等)のパターンに準拠: Biome 2.x, Tailwind v4 `@tailwindcss/postcss`, `next-intl` localePrefix "as-needed"
+
+## Monorepo 構成
+
+pnpm workspace で管理:
+
+- ルート: Tauri アプリ (React + Vite)
+- `lp/`: ランディングページ (Next.js)
+
+`pnpm-workspace.yaml` に `packages: ["lp"]` を設定済み。
