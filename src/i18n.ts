@@ -22,6 +22,8 @@ interface Messages {
   quitApp: string;
   countdownPrefix: string;
   countdownSuffix: string;
+  formatDuration: (mins: number) => string;
+  formatTrayDuration: (mins: number) => string;
   now: string;
   copyUrl: string;
   copied: string;
@@ -59,6 +61,18 @@ const ja: Messages = {
   quitApp: "Galopen を終了",
   countdownPrefix: "あと",
   countdownSuffix: "分",
+  formatDuration: (mins: number) => {
+    if (mins < 60) return `あと${mins}分`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `あと${h}時間` : `あと${h}時間${m}分`;
+  },
+  formatTrayDuration: (mins: number) => {
+    if (mins < 60) return `${mins}分`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `${h}時間` : `${h}時間${m}分`;
+  },
   now: "開催中",
   copyUrl: "URLをコピー",
   copied: "コピー済み",
@@ -95,6 +109,18 @@ const en: Messages = {
   quitApp: "Quit Galopen",
   countdownPrefix: "In ",
   countdownSuffix: " min",
+  formatDuration: (mins: number) => {
+    if (mins < 60) return `In ${mins} min`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `In ${h}h` : `In ${h}h ${m}m`;
+  },
+  formatTrayDuration: (mins: number) => {
+    if (mins < 60) return `${mins}m`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `${h}h` : `${h}h${m}m`;
+  },
   now: "Now",
   copyUrl: "Copy URL",
   copied: "Copied",

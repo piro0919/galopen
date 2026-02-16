@@ -91,7 +91,7 @@ export function EventCard({
   const countdownText =
     isNext && minutesLeft != null
       ? minutesLeft > 0
-        ? `${t.countdownPrefix}${minutesLeft}${t.countdownSuffix}`
+        ? t.formatDuration(minutesLeft)
         : t.now
       : null;
 
@@ -112,62 +112,68 @@ export function EventCard({
       onMouseLeave={() => setHovered(false)}
     >
       <span style={{ ...styles.dot, background: color }} />
-      <div style={styles.time}>{time}</div>
-      <div style={styles.info}>
-        {event.externalUrl ? (
-          <button
-            type="button"
-            style={styles.summaryLink}
-            onClick={() => {
-              if (event.externalUrl) openUrl(event.externalUrl);
-            }}
-          >
-            {event.summary || t.noTitle}
-            <ExternalLink
-              size={11}
-              strokeWidth={1.75}
-              style={{ marginLeft: 4, verticalAlign: "middle", opacity: 0.6 }}
-            />
-          </button>
-        ) : (
-          <div style={styles.summary}>{event.summary || t.noTitle}</div>
-        )}
-        {countdownText && (
-          <span style={{ ...styles.countdown, ...countdownStyle }}>
-            {countdownText}
-          </span>
-        )}
-        {meeting && (
-          <button
-            type="button"
-            style={{
-              ...styles.badge,
-              ...(badgeHovered ? styles.badgeHover : {}),
-            }}
-            onClick={() => openUrl(meeting.url)}
-            onMouseEnter={() => setBadgeHovered(true)}
-            onMouseLeave={() => setBadgeHovered(false)}
-          >
-            <Video size={12} strokeWidth={1.75} />
-            {meeting.type}
-          </button>
-        )}
-        {meeting && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            title={copied ? t.copied : t.copyUrl}
-            style={{
-              ...styles.copyBtn,
-              ...(copied ? styles.copyBtnDone : {}),
-            }}
-          >
-            {copied ? (
-              <Check size={12} strokeWidth={2} />
-            ) : (
-              <Copy size={12} strokeWidth={1.75} />
+      <div style={styles.content}>
+        <div style={styles.row1}>
+          <div style={styles.time}>{time}</div>
+          {event.externalUrl ? (
+            <button
+              type="button"
+              style={styles.summaryLink}
+              onClick={() => {
+                if (event.externalUrl) openUrl(event.externalUrl);
+              }}
+            >
+              {event.summary || t.noTitle}
+              <ExternalLink
+                size={11}
+                strokeWidth={1.75}
+                style={{ marginLeft: 4, verticalAlign: "middle", opacity: 0.6 }}
+              />
+            </button>
+          ) : (
+            <div style={styles.summary}>{event.summary || t.noTitle}</div>
+          )}
+        </div>
+        {(countdownText || meeting) && (
+          <div style={styles.row2}>
+            {countdownText && (
+              <span style={{ ...styles.countdown, ...countdownStyle }}>
+                {countdownText}
+              </span>
             )}
-          </button>
+            {meeting && (
+              <button
+                type="button"
+                style={{
+                  ...styles.badge,
+                  ...(badgeHovered ? styles.badgeHover : {}),
+                }}
+                onClick={() => openUrl(meeting.url)}
+                onMouseEnter={() => setBadgeHovered(true)}
+                onMouseLeave={() => setBadgeHovered(false)}
+              >
+                <Video size={12} strokeWidth={1.75} />
+                {meeting.type}
+              </button>
+            )}
+            {meeting && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                title={copied ? t.copied : t.copyUrl}
+                style={{
+                  ...styles.copyBtn,
+                  ...(copied ? styles.copyBtnDone : {}),
+                }}
+              >
+                {copied ? (
+                  <Check size={12} strokeWidth={2} />
+                ) : (
+                  <Copy size={12} strokeWidth={1.75} />
+                )}
+              </button>
+            )}
+          </div>
         )}
       </div>
     </article>
@@ -177,7 +183,7 @@ export function EventCard({
 const styles: Record<string, React.CSSProperties> = {
   card: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 8,
     padding: "10px 12px",
     background: "#fff",
@@ -195,6 +201,26 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "50%",
     flexShrink: 0,
     boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)",
+    marginTop: 4,
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 4,
+    flex: 1,
+    minWidth: 0,
+  },
+  row1: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    minWidth: 0,
+  },
+  row2: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    marginLeft: 96,
   },
   time: {
     fontSize: 12,
@@ -202,13 +228,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#6E6E73",
     minWidth: 90,
     fontVariantNumeric: "tabular-nums",
-  },
-  info: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    flex: 1,
-    minWidth: 0,
+    flexShrink: 0,
   },
   summary: {
     fontSize: 13,

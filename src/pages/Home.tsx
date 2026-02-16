@@ -101,7 +101,7 @@ export function Home() {
         );
         // 0 = always, otherwise show only within threshold
         if (trayCountdownMinutes === 0 || mins <= trayCountdownMinutes) {
-          invoke("set_tray_title", { title: `${mins}${t.trayMinSuffix}` });
+          invoke("set_tray_title", { title: t.formatTrayDuration(mins) });
         } else {
           invoke("set_tray_title", { title: "" });
         }
