@@ -12,17 +12,13 @@ export function PermissionRequest({
       <h1 style={styles.title}>{t.appName}</h1>
       <p style={styles.subtitle}>{t.subtitle}</p>
 
-      {status === "not_determined" && (
+      {(status === "not_determined" || status === "denied") && (
         <>
           <p style={styles.description}>{t.permissionDesc}</p>
           <button onClick={onRequestPermission} style={styles.button}>
-            {t.grantAccess}
+            {t.openSettings}
           </button>
         </>
-      )}
-
-      {status === "denied" && (
-        <p style={styles.description}>{t.deniedMsg}</p>
       )}
 
       {status === "restricted" && (

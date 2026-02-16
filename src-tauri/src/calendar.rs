@@ -3,7 +3,7 @@ use objc2::rc::Retained;
 use objc2_event_kit::{
     EKAuthorizationStatus, EKCalendar, EKEntityType, EKEvent, EKEventStatus, EKEventStore,
 };
-use objc2_foundation::{NSArray, NSDate, NSURL};
+use objc2_foundation::{NSArray, NSDate, NSString, NSURL};
 use serde::{Deserialize, Serialize};
 use std::sync::mpsc;
 use std::sync::Mutex;
@@ -61,21 +61,63 @@ impl CalendarState {
 
         // Spawn a dedicated thread that owns the EKEventStore.
         // EKEventStore is not Send/Sync, so all EventKit calls happen here.
+        // All EventKit calls are wrapped in both catch_unwind (Rust panics)
+        // and exception::catch (ObjC exceptions) to prevent crashes.
         std::thread::spawn(move || {
             let store = unsafe { EKEventStore::new() };
             for cmd in rx {
                 match cmd {
                     CalendarCommand::FetchToday(reply) => {
-                        let _ = reply.send(fetch_todays_events_inner(&store));
+                        let result =
+                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+                                objc2::exception::catch(std::panic::AssertUnwindSafe(|| {
+                                    fetch_todays_events_inner(&store)
+                                }))
+                            }));
+                        let _ = reply.send(match result {
+                            Ok(Ok(v)) => v,
+                            Ok(Err(e)) => Err(format!("ObjC exception: {:?}", e)),
+                            Err(_) => Err("EventKit panic".to_string()),
+                        });
                     }
                     CalendarCommand::FetchCalendars(reply) => {
-                        let _ = reply.send(fetch_calendars_inner(&store));
+                        let result =
+                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+                                objc2::exception::catch(std::panic::AssertUnwindSafe(|| {
+                                    fetch_calendars_inner(&store)
+                                }))
+                            }));
+                        let _ = reply.send(match result {
+                            Ok(Ok(v)) => v,
+                            Ok(Err(e)) => Err(format!("ObjC exception: {:?}", e)),
+                            Err(_) => Err("EventKit panic".to_string()),
+                        });
                     }
                     CalendarCommand::CheckPermission(reply) => {
-                        let _ = reply.send(check_permission_inner());
+                        let result =
+                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+                                objc2::exception::catch(std::panic::AssertUnwindSafe(|| {
+                                    check_permission_inner()
+                                }))
+                            }));
+                        let _ = reply.send(match result {
+                            Ok(Ok(v)) => v,
+                            Ok(Err(e)) => Err(format!("ObjC exception: {:?}", e)),
+                            Err(_) => Err("EventKit panic".to_string()),
+                        });
                     }
                     CalendarCommand::RequestPermission(reply) => {
-                        let _ = reply.send(request_permission_inner(&store));
+                        let result =
+                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+                                objc2::exception::catch(std::panic::AssertUnwindSafe(|| {
+                                    request_permission_inner(&store)
+                                }))
+                            }));
+                        let _ = reply.send(match result {
+                            Ok(Ok(v)) => v,
+                            Ok(Err(e)) => Err(format!("ObjC exception: {:?}", e)),
+                            Err(_) => Err("EventKit panic".to_string()),
+                        });
                     }
                 }
             }
@@ -94,10 +136,15 @@ fn nsdate_to_chrono(nsdate: &NSDate) -> DateTime<Utc> {
     DateTime::from_timestamp(timestamp as i64, 0).unwrap_or_default()
 }
 
-fn ekevent_to_calendar_event(event: &EKEvent) -> CalendarEvent {
-    let title = unsafe { event.title() }.to_string();
-    let start_date = unsafe { event.startDate() };
-    let end_date = unsafe { event.endDate() };
+fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
+    // Use msg_send! with Option types for properties that may return nil
+    // to avoid panics from objc2's non-null Retained assertions.
+    let title: Option<Retained<NSString>> = unsafe { objc2::msg_send![event, title] };
+    let title = title.map(|s| s.to_string()).unwrap_or_default();
+    let start_date: Option<Retained<NSDate>> = unsafe { objc2::msg_send![event, startDate] };
+    let end_date: Option<Retained<NSDate>> = unsafe { objc2::msg_send![event, endDate] };
+    let start_date = start_date?;
+    let end_date = end_date?;
     let is_all_day = unsafe { event.isAllDay() };
     let event_id = unsafe { event.eventIdentifier() }
         .map(|s| s.to_string())
@@ -122,13 +169,14 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> CalendarEvent {
         None
     };
 
-    let cal = unsafe { event.calendar() };
+    let cal: Option<Retained<EKCalendar>> = unsafe { objc2::msg_send![event, calendar] };
     let calendar_id = cal
         .as_ref()
         .map(|c| unsafe { c.calendarIdentifier() }.to_string());
-    let calendar_name = cal
-        .as_ref()
-        .map(|c| unsafe { c.title() }.to_string());
+    let calendar_name = cal.as_ref().and_then(|c| {
+        let t: Option<Retained<NSString>> = unsafe { objc2::msg_send![c, title] };
+        t.map(|s| s.to_string())
+    });
 
     // calendarItemExternalURI - use objc2 exception handling to avoid crash
     let external_url: Option<String> = unsafe {
@@ -139,7 +187,7 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> CalendarEvent {
         .unwrap_or(None)
     };
 
-    CalendarEvent {
+    Some(CalendarEvent {
         id: event_id,
         summary: title,
         start: EventDateTime {
@@ -174,7 +222,7 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> CalendarEvent {
         calendar_id,
         calendar_name,
         external_url,
-    }
+    })
 }
 
 #[allow(deprecated)]
@@ -197,16 +245,20 @@ fn check_permission_inner() -> Result<String, String> {
 
 fn request_permission_inner(store: &EKEventStore) -> Result<bool, String> {
     let (tx, rx) = mpsc::channel();
+    let tx_arc = std::sync::Arc::new(std::sync::Mutex::new(Some(tx)));
+    let tx_clone = tx_arc.clone();
 
-    let block = block2::RcBlock::new(
-        move |granted: objc2::runtime::Bool,
-              _error: *mut objc2_foundation::NSError| {
-            let _ = tx.send(granted.as_bool());
+    let completion = block2::RcBlock::new(
+        move |granted: objc2::runtime::Bool, _error: *mut objc2_foundation::NSError| {
+            if let Some(sender) = tx_clone.lock().unwrap().take() {
+                let _ = sender.send(granted.as_bool());
+            }
         },
     );
 
     unsafe {
-        store.requestFullAccessToEventsWithCompletion(&*block as *const _ as *mut _);
+        let _: () =
+            objc2::msg_send![store, requestFullAccessToEventsWithCompletion: &*completion];
     }
 
     rx.recv()
@@ -262,6 +314,11 @@ fn fetch_todays_events_inner(
     let start_nsdate = NSDate::dateWithTimeIntervalSince1970(start_utc.timestamp() as f64);
     let end_nsdate = NSDate::dateWithTimeIntervalSince1970(end_utc.timestamp() as f64);
 
+    // Ask macOS to pull latest data from remote sources (Google, iCloud, etc.)
+    unsafe { store.refreshSourcesIfNecessary() };
+    // Reset cached data so external changes are picked up
+    unsafe { store.reset() };
+
     let predicate = unsafe {
         store.predicateForEventsWithStartDate_endDate_calendars(
             &start_nsdate,
@@ -274,7 +331,7 @@ fn fetch_todays_events_inner(
 
     let mut events: Vec<CalendarEvent> = ek_events
         .iter()
-        .map(|e| ekevent_to_calendar_event(&e))
+        .filter_map(|e| ekevent_to_calendar_event(&e))
         .filter(|e| e.status.as_deref() != Some("cancelled"))
         .collect();
 

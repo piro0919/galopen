@@ -1,6 +1,6 @@
 [package]
 name = "galopen"
-version = "0.1.0"
+version = "0.2.0"
 description = "Auto-open meeting URLs from macOS Calendar"
 authors = ["piro"]
 edition = "2021"
@@ -40,9 +40,10 @@ sys-locale = "0.3"
 tauri-plugin-autostart = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-dialog = "2"
+tauri-plugin-positioner = { version = "2", features = ["tray-icon"] }
 
 [profile.release]
-panic = "abort"
+panic = "unwind"
 codegen-units = 1
 lto = true
 opt-level = "s"

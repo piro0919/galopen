@@ -13,3 +13,5 @@ export const getTodaysEvents = () =>
   invoke<CalendarEvent[]>("get_todays_events");
 
 export const forceSync = () => invoke<CalendarEvent[]>("force_sync");
+
+export const openCalendarSettings = () => invoke("open_calendar_settings");

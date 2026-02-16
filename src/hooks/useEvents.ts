@@ -1,31 +1,29 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { forceSync, getTodaysEvents } from "../lib/tauri";
 import type { CalendarEvent } from "../types";
 
 export function useEvents() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await forceSync();
-      setEvents(data);
-    } catch {
-      // Silently fail - scheduler will retry
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    refresh();
+    // Initial fetch
+    forceSync()
+      .then(setEvents)
+      .catch((e) => console.error("[galopen] forceSync error:", e))
+      .finally(() => setLoading(false));
+
+    // Re-read cached events every 60s
     const interval = setInterval(async () => {
-      const data = await getTodaysEvents();
-      setEvents(data);
+      try {
+        const data = await getTodaysEvents();
+        setEvents(data);
+      } catch {
+        // ignore
+      }
     }, 60_000);
     return () => clearInterval(interval);
-  }, [refresh]);
+  }, []);
 
-  return { events, loading, refresh };
+  return { events, loading };
 }

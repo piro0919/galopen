@@ -1,10 +1,11 @@
 use tauri::{
     image::Image,
     menu::{MenuBuilder, MenuItemBuilder},
-    tray::TrayIconBuilder,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+use tauri_plugin_positioner::{Position, WindowExt as PositionerWindowExt};
 use tauri_plugin_updater::UpdaterExt;
 
 mod calendar;
@@ -29,6 +30,7 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_positioner::init())
         .manage(calendar::CalendarState::new())
         .invoke_handler(tauri::generate_handler![
             calendar::check_calendar_permission,
@@ -36,6 +38,7 @@ pub fn run() {
             calendar::get_calendars,
             calendar::get_todays_events,
             calendar::force_sync,
+            open_calendar_settings,
         ])
         .setup(|app| {
             // Hide dock icon - menu bar only app
@@ -46,12 +49,10 @@ pub fn run() {
                 .map(|l| l.starts_with("ja"))
                 .unwrap_or(false);
 
-            // Build tray menu
+            // Build tray menu (right-click only)
             let quit_label = if is_ja { "Galopen を終了" } else { "Quit Galopen" };
-            let show_label = if is_ja { "ウインドウを表示" } else { "Show Window" };
             let quit = MenuItemBuilder::with_id("quit", quit_label).build(app)?;
-            let show = MenuItemBuilder::with_id("show", show_label).build(app)?;
-            let menu = MenuBuilder::new(app).items(&[&show, &quit]).build()?;
+            let menu = MenuBuilder::new(app).items(&[&quit]).build()?;
 
             // Build tray icon with dedicated monochrome template icon
             let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-icon@2x.png"))?;
@@ -59,17 +60,32 @@ pub fn run() {
                 .icon(tray_icon)
                 .icon_as_template(true)
                 .menu(&menu)
-                .on_menu_event(move |app, event| match event.id().as_ref() {
-                    "quit" => {
+                .show_menu_on_left_click(false)
+                .on_menu_event(move |app, event| {
+                    if event.id().as_ref() == "quit" {
                         app.exit(0);
                     }
-                    "show" => {
+                })
+                .on_tray_icon_event(|tray, event| {
+                    tauri_plugin_positioner::on_tray_event(tray.app_handle(), &event);
+
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            if window.is_visible().unwrap_or(false) {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.move_window(Position::TrayCenter);
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
                         }
                     }
-                    _ => {}
                 })
                 .build(app)?;
 
@@ -87,14 +103,23 @@ pub fn run() {
 
             Ok(())
         })
-        .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+        .on_window_event(|window, event| match event {
+            tauri::WindowEvent::CloseRequested { api, .. } => {
                 api.prevent_close();
                 let _ = window.hide();
             }
+            tauri::WindowEvent::Focused(false) => {
+                let _ = window.hide();
+            }
+            _ => {}
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tauri::command]
+fn open_calendar_settings() {
+    let _ = open::that("x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars");
 }
 
 async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {

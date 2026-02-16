@@ -10,8 +10,6 @@ interface Messages {
   allDay: string;
   noTitle: string;
   todaysSchedule: string;
-  sync: string;
-  syncing: string;
   loadingEvents: string;
   noEvents: string;
   other: string;
@@ -20,6 +18,7 @@ interface Messages {
   openBefore: string;
   minutesBefore: string;
   startAtLogin: string;
+  openSettings: string;
 }
 
 const ja: Messages = {
@@ -37,8 +36,6 @@ const ja: Messages = {
   allDay: "終日",
   noTitle: "（タイトルなし）",
   todaysSchedule: "今日の予定",
-  sync: "同期",
-  syncing: "同期中...",
   loadingEvents: "予定を読み込み中...",
   noEvents: "今日の予定はありません",
   other: "その他",
@@ -47,6 +44,7 @@ const ja: Messages = {
   openBefore: "会議URLを開くタイミング",
   minutesBefore: "分前",
   startAtLogin: "ログイン時に自動起動",
+  openSettings: "システム設定を開く",
 };
 
 const en: Messages = {
@@ -63,8 +61,6 @@ const en: Messages = {
   allDay: "All day",
   noTitle: "(No title)",
   todaysSchedule: "Today's Schedule",
-  sync: "Sync",
-  syncing: "Syncing...",
   loadingEvents: "Loading events...",
   noEvents: "No events today",
   other: "Other",
@@ -73,6 +69,7 @@ const en: Messages = {
   openBefore: "Open meeting URL",
   minutesBefore: "min before",
   startAtLogin: "Start at login",
+  openSettings: "Open System Settings",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;

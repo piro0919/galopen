@@ -7,7 +7,7 @@ import { useEvents } from "../hooks/useEvents";
 import { t } from "../i18n";
 
 export function Home() {
-  const { events, loading, refresh } = useEvents();
+  const { events, loading } = useEvents();
   const { calendars, enabledIds, loaded, toggleCalendar } = useCalendars();
   const [showFilter, setShowFilter] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -57,11 +57,7 @@ export function Home() {
         />
       )}
       {showSettings && <Settings />}
-      <EventList
-        events={filteredEvents}
-        loading={loading}
-        onRefresh={refresh}
-      />
+      <EventList events={filteredEvents} loading={loading} />
     </div>
   );
 }
