@@ -29,11 +29,41 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Metadata" });
 
+  const url = "https://galopen.kkweb.io";
+
   return {
     description: t("description"),
     title: {
       default: t("title"),
       template: `%s | ${t("title")}`,
+    },
+    metadataBase: new URL(url),
+    icons: {
+      icon: [
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+      apple: "/apple-touch-icon.png",
+    },
+    openGraph: {
+      type: "website",
+      siteName: "Galopen",
+      title: t("title"),
+      description: t("description"),
+      url,
+      locale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+    },
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${url}/en`,
+        ja: `${url}/ja`,
+      },
     },
   };
 }

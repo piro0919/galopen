@@ -1,5 +1,5 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "https://galopen.vercel.app",
+  siteUrl: "https://galopen.kkweb.io",
   generateRobotsTxt: true,
 };
