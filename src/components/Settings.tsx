@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { Bell, LogOut, Power } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
@@ -8,6 +10,7 @@ const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
 export function Settings() {
   const [minutesBefore, setMinutesBefore] = useState(1);
   const [autostart, setAutostart] = useState(false);
+  const [quitHovered, setQuitHovered] = useState(false);
 
   useEffect(() => {
     load("settings.json").then(async (store) => {
@@ -33,33 +36,35 @@ export function Settings() {
         await enable();
         setAutostart(true);
       }
-    } catch {
-      // autostart may fail in dev mode
+    } catch (e) {
+      console.error("[galopen] autostart error:", e);
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.row}>
-        <span style={styles.label}>{t.openBefore}</span>
-        <div style={styles.options}>
-          {MINUTE_OPTIONS.map((m) => (
-            <button
-              type="button"
-              key={m}
-              onClick={() => handleChange(m)}
-              style={{
-                ...styles.option,
-                ...(m === minutesBefore ? styles.optionActive : {}),
-              }}
-            >
-              {m}{t.minutesBefore}
-            </button>
-          ))}
+        <div style={styles.labelRow}>
+          <Bell size={14} strokeWidth={1.75} color="#6E6E73" />
+          <span style={styles.label}>{t.openBefore}</span>
         </div>
+        <select
+          value={minutesBefore}
+          onChange={(e) => handleChange(Number(e.target.value))}
+          style={styles.select}
+        >
+          {MINUTE_OPTIONS.map((m) => (
+            <option key={m} value={m}>
+              {m}{t.minutesBefore}
+            </option>
+          ))}
+        </select>
       </div>
-      <div style={{ ...styles.row, marginTop: 10 }}>
-        <span style={styles.label}>{t.startAtLogin}</span>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <Power size={14} strokeWidth={1.75} color="#6E6E73" />
+          <span style={styles.label}>{t.startAtLogin}</span>
+        </div>
         <button
           type="button"
           onClick={handleAutostart}
@@ -76,6 +81,21 @@ export function Settings() {
           />
         </button>
       </div>
+      <div style={{ ...styles.row, marginTop: 16 }}>
+        <button
+          type="button"
+          onClick={() => invoke("quit_app")}
+          onMouseEnter={() => setQuitHovered(true)}
+          onMouseLeave={() => setQuitHovered(false)}
+          style={{
+            ...styles.quitBtn,
+            ...(quitHovered ? styles.quitBtnHover : {}),
+          }}
+        >
+          <LogOut size={14} strokeWidth={1.75} />
+          {t.quitApp}
+        </button>
+      </div>
     </div>
   );
 }
@@ -83,7 +103,7 @@ export function Settings() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: "12px 16px",
-    borderBottom: "1px solid #ddd",
+    borderBottom: "1px solid #E5E5EA",
   },
   row: {
     display: "flex",
@@ -91,27 +111,26 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
     gap: 12,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: 600,
+  labelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
     flexShrink: 0,
   },
-  options: {
-    display: "flex",
-    gap: 4,
+  label: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: "#1D1D1F",
   },
-  option: {
-    fontSize: 12,
+  select: {
+    fontSize: 13,
     padding: "4px 8px",
-    borderRadius: 4,
-    border: "1px solid #ccc",
+    borderRadius: 6,
+    border: "1px solid #E5E5EA",
     background: "#fff",
+    color: "#1D1D1F",
     cursor: "pointer",
-  },
-  optionActive: {
-    background: "#1a73e8",
-    color: "#fff",
-    borderColor: "#1a73e8",
+    outline: "none",
   },
   toggle: {
     width: 44,
@@ -124,16 +143,17 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "background 0.2s",
   },
   toggleOn: {
-    background: "#1a73e8",
+    background: "#007AFF",
   },
   toggleOff: {
-    background: "#ccc",
+    background: "#E5E5EA",
   },
   toggleKnob: {
     width: 20,
     height: 20,
     borderRadius: 10,
     background: "#fff",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
     transition: "transform 0.2s",
   },
   knobOn: {
@@ -141,5 +161,25 @@ const styles: Record<string, React.CSSProperties> = {
   },
   knobOff: {
     transform: "translateX(0)",
+  },
+  quitBtn: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    fontSize: 13,
+    fontWeight: 500,
+    padding: "8px 0",
+    borderRadius: 8,
+    border: "1px solid #E5E5EA",
+    background: "#fff",
+    cursor: "pointer",
+    color: "#FF3B30",
+    transition: "all 0.15s ease",
+  },
+  quitBtnHover: {
+    background: "#FFF5F5",
+    borderColor: "#FFD4D1",
   },
 };

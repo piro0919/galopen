@@ -1,3 +1,4 @@
+import { CalendarDays, CalendarOff, Loader2 } from "lucide-react";
 import { t } from "../i18n";
 import type { CalendarEvent } from "../types";
 import { EventCard } from "./EventCard";
@@ -12,14 +13,30 @@ export function EventList({
   return (
     <div>
       <div style={styles.header}>
+        <CalendarDays size={14} strokeWidth={1.75} color="#6E6E73" />
         <h2 style={styles.title}>{t.todaysSchedule}</h2>
       </div>
-      {events.length === 0 ? (
-        <p style={styles.empty}>
-          {loading ? t.loadingEvents : t.noEvents}
-        </p>
+      {loading ? (
+        <div style={styles.empty}>
+          <Loader2
+            size={24}
+            strokeWidth={1.75}
+            color="#AEAEB2"
+            className="spin"
+          />
+          <span style={styles.emptyText}>{t.loadingEvents}</span>
+        </div>
+      ) : events.length === 0 ? (
+        <div style={styles.empty}>
+          <CalendarOff size={32} strokeWidth={1.5} color="#AEAEB2" />
+          <span style={styles.emptyText}>{t.noEvents}</span>
+        </div>
       ) : (
-        events.map((event) => <EventCard key={event.id} event={event} />)
+        <div style={styles.list}>
+          {events.map((event, i) => (
+            <EventCard key={event.id} event={event} isNext={i === 0} />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -27,16 +44,34 @@ export function EventList({
 
 const styles: Record<string, React.CSSProperties> = {
   header: {
-    padding: "12px 16px",
-    borderBottom: "1px solid #ddd",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "14px 16px 8px",
   },
   title: {
-    fontSize: 16,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#6E6E73",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
     margin: 0,
   },
+  list: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+    padding: "4px 12px 12px",
+  },
   empty: {
-    textAlign: "center",
-    color: "#999",
-    padding: 40,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10,
+    padding: "48px 40px",
+  },
+  emptyText: {
+    fontSize: 13,
+    color: "#AEAEB2",
   },
 };

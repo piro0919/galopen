@@ -19,7 +19,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            tauri_plugin_autostart::MacosLauncher::AppleScript,
             None,
         ))
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -39,6 +39,8 @@ pub fn run() {
             calendar::get_todays_events,
             calendar::force_sync,
             open_calendar_settings,
+            quit_app,
+            set_tray_title,
         ])
         .setup(|app| {
             // Hide dock icon - menu bar only app
@@ -56,7 +58,7 @@ pub fn run() {
 
             // Build tray icon with dedicated monochrome template icon
             let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-icon@2x.png"))?;
-            let _tray = TrayIconBuilder::new()
+            let _tray = TrayIconBuilder::with_id("main")
                 .icon(tray_icon)
                 .icon_as_template(true)
                 .menu(&menu)
@@ -120,6 +122,19 @@ pub fn run() {
 #[tauri::command]
 fn open_calendar_settings() {
     let _ = open::that("x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars");
+}
+
+#[tauri::command]
+fn quit_app(app: tauri::AppHandle) {
+    app.exit(0);
+}
+
+#[tauri::command]
+fn set_tray_title(app: tauri::AppHandle, title: String) {
+    if let Some(tray) = app.tray_by_id("main") {
+        let t = if title.is_empty() { None } else { Some(title.as_str()) };
+        let _ = tray.set_title(t);
+    }
 }
 
 async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {

@@ -1,6 +1,6 @@
 [package]
 name = "galopen"
-version = "0.2.0"
+version = "0.3.0"
 description = "Auto-open meeting URLs from macOS Calendar"
 authors = ["piro"]
 edition = "2021"

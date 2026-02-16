@@ -19,6 +19,13 @@ interface Messages {
   minutesBefore: string;
   startAtLogin: string;
   openSettings: string;
+  quitApp: string;
+  countdownPrefix: string;
+  countdownSuffix: string;
+  now: string;
+  copyUrl: string;
+  copied: string;
+  trayMinSuffix: string;
 }
 
 const ja: Messages = {
@@ -45,6 +52,13 @@ const ja: Messages = {
   minutesBefore: "分前",
   startAtLogin: "ログイン時に自動起動",
   openSettings: "システム設定を開く",
+  quitApp: "Galopen を終了",
+  countdownPrefix: "あと",
+  countdownSuffix: "分",
+  now: "開催中",
+  copyUrl: "URLをコピー",
+  copied: "コピー済み",
+  trayMinSuffix: "分",
 };
 
 const en: Messages = {
@@ -70,6 +84,13 @@ const en: Messages = {
   minutesBefore: "min before",
   startAtLogin: "Start at login",
   openSettings: "Open System Settings",
+  quitApp: "Quit Galopen",
+  countdownPrefix: "In ",
+  countdownSuffix: " min",
+  now: "Now",
+  copyUrl: "Copy URL",
+  copied: "Copied",
+  trayMinSuffix: "m",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;

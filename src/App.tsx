@@ -1,5 +1,5 @@
+import { Loader2 } from "lucide-react";
 import { usePermission } from "./hooks/usePermission";
-import { t } from "./i18n";
 import { Home } from "./pages/Home";
 import { PermissionRequest } from "./pages/PermissionRequest";
 
@@ -8,14 +8,35 @@ function App() {
 
   if (status === "loading") {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <p>{t.loading}</p>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 10,
+          background: "#F5F5F7",
+        }}
+      >
+        <img src="/icon.png" alt="" width={48} height={48} style={{ borderRadius: 10 }} />
+        <Loader2
+          size={20}
+          strokeWidth={1.75}
+          color="#AEAEB2"
+          className="spin"
+        />
       </div>
     );
   }
 
   if (status !== "granted") {
-    return <PermissionRequest onRequestPermission={requestPermission} status={status} />;
+    return (
+      <PermissionRequest
+        onRequestPermission={requestPermission}
+        status={status}
+      />
+    );
   }
 
   return <Home />;

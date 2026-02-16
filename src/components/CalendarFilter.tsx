@@ -1,7 +1,6 @@
 import { t } from "../i18n";
 import type { CalendarInfo } from "../types";
 
-// Generate a stable color from calendar name
 function calendarColor(name: string): string {
   const colors = [
     "#4285f4", "#ea4335", "#34a853", "#fbbc04",
@@ -25,7 +24,6 @@ export function CalendarFilter({
 }) {
   if (calendars.length <= 1) return null;
 
-  // Group by source
   const grouped = new Map<string, CalendarInfo[]>();
   for (const cal of calendars) {
     const key = cal.sourceName || t.other;
@@ -66,40 +64,43 @@ export function CalendarFilter({
   );
 }
 
-// Re-export for EventCard usage
 export { calendarColor };
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    padding: "8px 16px",
-    borderBottom: "1px solid #ddd",
+    padding: "8px 16px 12px",
+    borderBottom: "1px solid #E5E5EA",
   },
   sourceName: {
     fontSize: 11,
-    color: "#999",
     fontWeight: 600,
+    color: "#AEAEB2",
     textTransform: "uppercase",
-    padding: "4px 0",
+    letterSpacing: "0.5px",
+    padding: "6px 0 2px",
   },
   item: {
     display: "flex",
     alignItems: "center",
-    gap: 6,
-    padding: "4px 8px",
+    gap: 8,
+    padding: "6px 8px",
     border: "none",
     background: "none",
     cursor: "pointer",
     width: "100%",
     textAlign: "left",
-    borderRadius: 4,
+    borderRadius: 6,
+    transition: "background 0.15s ease",
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     borderRadius: "50%",
     flexShrink: 0,
+    boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)",
   },
   calName: {
     fontSize: 13,
+    color: "#1D1D1F",
   },
 };
