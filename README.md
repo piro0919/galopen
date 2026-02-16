@@ -1,7 +1,7 @@
 # Galopen
 
 <p align="center">
-  <img src="src-tauri/icons/icon.png" alt="Galopen" width="128" height="128" style="border-radius: 24px;" />
+  <img src="docs/icon-rounded.png" alt="Galopen" width="128" height="128" />
 </p>
 
 <p align="center">
