@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Bell, LogOut, Power } from "lucide-react";
+import { Bell, Clock, LogOut, Power } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
+const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 0]; // 0 = always
 
 export function Settings() {
   const [minutesBefore, setMinutesBefore] = useState(1);
+  const [trayCountdown, setTrayCountdown] = useState(30);
   const [autostart, setAutostart] = useState(false);
   const [quitHovered, setQuitHovered] = useState(false);
 
@@ -16,6 +18,8 @@ export function Settings() {
     load("settings.json").then(async (store) => {
       const val = (await store.get("minutesBefore")) as number | undefined;
       if (val != null) setMinutesBefore(val);
+      const tray = (await store.get("trayCountdownMinutes")) as number | undefined;
+      if (tray != null) setTrayCountdown(tray);
     });
     isEnabled().then(setAutostart).catch(() => {});
   }, []);
@@ -24,6 +28,13 @@ export function Settings() {
     setMinutesBefore(value);
     const store = await load("settings.json");
     await store.set("minutesBefore", value);
+    await store.save();
+  };
+
+  const handleTrayCountdown = async (value: number) => {
+    setTrayCountdown(value);
+    const store = await load("settings.json");
+    await store.set("trayCountdownMinutes", value);
     await store.save();
   };
 
@@ -56,6 +67,23 @@ export function Settings() {
           {MINUTE_OPTIONS.map((m) => (
             <option key={m} value={m}>
               {m}{t.minutesBefore}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <Clock size={14} strokeWidth={1.75} color="#6E6E73" />
+          <span style={styles.label}>{t.trayCountdown}</span>
+        </div>
+        <select
+          value={trayCountdown}
+          onChange={(e) => handleTrayCountdown(Number(e.target.value))}
+          style={styles.select}
+        >
+          {TRAY_COUNTDOWN_OPTIONS.map((m) => (
+            <option key={m} value={m}>
+              {m === 0 ? t.trayAlways : `${m}${t.trayMinutes}`}
             </option>
           ))}
         </select>

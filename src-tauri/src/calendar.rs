@@ -293,12 +293,13 @@ fn fetch_todays_events_inner(
     store: &EKEventStore,
 ) -> Result<Vec<CalendarEvent>, String> {
     let today = Local::now().date_naive();
+    let tomorrow = today + chrono::Duration::days(1);
     let start_of_day = today
         .and_hms_opt(0, 0, 0)
         .ok_or("Failed to create start of day")?;
-    let end_of_day = today
+    let end_of_tomorrow = tomorrow
         .and_hms_opt(23, 59, 59)
-        .ok_or("Failed to create end of day")?;
+        .ok_or("Failed to create end of tomorrow")?;
 
     let start_utc = Local
         .from_local_datetime(&start_of_day)
@@ -306,7 +307,7 @@ fn fetch_todays_events_inner(
         .ok_or("Failed to convert start to UTC")?
         .with_timezone(&Utc);
     let end_utc = Local
-        .from_local_datetime(&end_of_day)
+        .from_local_datetime(&end_of_tomorrow)
         .single()
         .ok_or("Failed to convert end to UTC")?
         .with_timezone(&Utc);

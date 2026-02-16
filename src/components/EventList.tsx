@@ -1,7 +1,33 @@
 import { CalendarDays, CalendarOff, Loader2 } from "lucide-react";
+import { useMemo } from "react";
 import { t } from "../i18n";
 import type { CalendarEvent } from "../types";
 import { EventCard } from "./EventCard";
+
+function getDateKey(event: CalendarEvent): string {
+  if (event.start.dateTime) {
+    return new Date(event.start.dateTime).toLocaleDateString("sv-SE"); // YYYY-MM-DD
+  }
+  return event.start.date ?? "";
+}
+
+function formatDateLabel(dateKey: string): string {
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const todayStr = today.toLocaleDateString("sv-SE");
+  const tomorrowStr = tomorrow.toLocaleDateString("sv-SE");
+
+  if (dateKey === todayStr) return t.todaysSchedule;
+  if (dateKey === tomorrowStr) return t.tomorrow;
+  // For other dates, show localized date
+  const d = new Date(`${dateKey}T00:00:00`);
+  return d.toLocaleDateString(navigator.language, {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+  });
+}
 
 export function EventList({
   events,
@@ -10,34 +36,66 @@ export function EventList({
   events: CalendarEvent[];
   loading: boolean;
 }) {
+  const grouped = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+    for (const event of events) {
+      const key = getDateKey(event);
+      const arr = map.get(key);
+      if (arr) arr.push(event);
+      else map.set(key, [event]);
+    }
+    return [...map.entries()];
+  }, [events]);
+
+  if (loading) {
+    return (
+      <div style={styles.empty}>
+        <Loader2
+          size={24}
+          strokeWidth={1.75}
+          color="#AEAEB2"
+          className="spin"
+        />
+        <span style={styles.emptyText}>{t.loadingEvents}</span>
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div style={styles.empty}>
+        <CalendarOff size={32} strokeWidth={1.5} color="#AEAEB2" />
+        <span style={styles.emptyText}>{t.noEvents}</span>
+      </div>
+    );
+  }
+
+  // Track which is the first non-all-day future event across all groups
+  const now = new Date();
+  const firstNextId = events.find((e) => {
+    if (e.isAllDay || !e.start.dateTime) return false;
+    return new Date(e.start.dateTime) > now;
+  })?.id;
+
   return (
     <div>
-      <div style={styles.header}>
-        <CalendarDays size={14} strokeWidth={1.75} color="#6E6E73" />
-        <h2 style={styles.title}>{t.todaysSchedule}</h2>
-      </div>
-      {loading ? (
-        <div style={styles.empty}>
-          <Loader2
-            size={24}
-            strokeWidth={1.75}
-            color="#AEAEB2"
-            className="spin"
-          />
-          <span style={styles.emptyText}>{t.loadingEvents}</span>
+      {grouped.map(([dateKey, dayEvents]) => (
+        <div key={dateKey}>
+          <div style={styles.header}>
+            <CalendarDays size={14} strokeWidth={1.75} color="#6E6E73" />
+            <h2 style={styles.title}>{formatDateLabel(dateKey)}</h2>
+          </div>
+          <div style={styles.list}>
+            {dayEvents.map((event) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                isNext={event.id === firstNextId}
+              />
+            ))}
+          </div>
         </div>
-      ) : events.length === 0 ? (
-        <div style={styles.empty}>
-          <CalendarOff size={32} strokeWidth={1.5} color="#AEAEB2" />
-          <span style={styles.emptyText}>{t.noEvents}</span>
-        </div>
-      ) : (
-        <div style={styles.list}>
-          {events.map((event, i) => (
-            <EventCard key={event.id} event={event} isNext={i === 0} />
-          ))}
-        </div>
-      )}
+      ))}
     </div>
   );
 }

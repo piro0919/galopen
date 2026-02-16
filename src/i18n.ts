@@ -26,6 +26,10 @@ interface Messages {
   copyUrl: string;
   copied: string;
   trayMinSuffix: string;
+  tomorrow: string;
+  trayCountdown: string;
+  trayMinutes: string;
+  trayAlways: string;
 }
 
 const ja: Messages = {
@@ -44,7 +48,7 @@ const ja: Messages = {
   noTitle: "（タイトルなし）",
   todaysSchedule: "今日の予定",
   loadingEvents: "予定を読み込み中...",
-  noEvents: "今日の予定はありません",
+  noEvents: "予定はありません",
   other: "その他",
   loading: "読み込み中...",
   settings: "設定",
@@ -59,6 +63,10 @@ const ja: Messages = {
   copyUrl: "URLをコピー",
   copied: "コピー済み",
   trayMinSuffix: "分",
+  tomorrow: "明日の予定",
+  trayCountdown: "トレイのカウントダウン",
+  trayMinutes: "分前から",
+  trayAlways: "常に表示",
 };
 
 const en: Messages = {
@@ -76,7 +84,7 @@ const en: Messages = {
   noTitle: "(No title)",
   todaysSchedule: "Today's Schedule",
   loadingEvents: "Loading events...",
-  noEvents: "No events today",
+  noEvents: "No events",
   other: "Other",
   loading: "Loading...",
   settings: "Settings",
@@ -91,6 +99,10 @@ const en: Messages = {
   copyUrl: "Copy URL",
   copied: "Copied",
   trayMinSuffix: "m",
+  tomorrow: "Tomorrow",
+  trayCountdown: "Tray countdown",
+  trayMinutes: "min before",
+  trayAlways: "Always",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;
