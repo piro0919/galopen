@@ -39,7 +39,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDBGOUIwQUZBOTREMEM2MUEKUldRYXh0Q1UrZ3FiRDE3Sk0rK3FXc0ZhMDRHdEFON0xyTmNBWlY3dXJMcUE2OUZ6bTIzN0pqdDAK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdDQjNBNTAzRUNCMjk1NkYKUldSdmxiTHNBNld6Zk9yTWkyZGFqRHh6VnZyZk5aUVFDZmlCQlREU0VsNkFza3BVd2NIVkdtUTQK",
       "endpoints": [
         "https://github.com/piro0919/galopen/releases/latest/download/latest.json"
       ]
