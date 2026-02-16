@@ -1,0 +1,49 @@
+{
+  "Metadata": {
+    "title": "Galopen",
+    "description": "カレンダーの予定を表示し、会議URLを自動で開くmacOSメニューバーアプリ。"
+  },
+  "Hero": {
+    "tagline": "もう会議に遅れない。",
+    "description": "Galopenはmacのメニューバーに常駐し、今日と明日の予定を表示。会議URLを開始時刻に合わせて自動で開きます。",
+    "download": "macOS版をダウンロード",
+    "viewOnGithub": "GitHubで見る"
+  },
+  "Features": {
+    "title": "機能",
+    "menuBar": {
+      "title": "メニューバー常駐",
+      "description": "メニューバーに静かに常駐。クリックで今日と明日のスケジュールをすぐに確認できます。"
+    },
+    "autoOpen": {
+      "title": "会議URLの自動オープン",
+      "description": "Zoom、Google Meet、Teamsのリンクを会議開始前に自動で開きます。タイミングは設定で変更可能。"
+    },
+    "countdown": {
+      "title": "カウントダウンタイマー",
+      "description": "次の会議まであと何分かをメニューバーに表示。表示するタイミングも設定できます。"
+    },
+    "calendars": {
+      "title": "カレンダーフィルタリング",
+      "description": "個別のカレンダーの表示・非表示を切り替え。Macに同期されたすべてのカレンダーに対応。"
+    },
+    "privacy": {
+      "title": "プライバシー重視",
+      "description": "すべてのデータはMac内に留まります。アカウント登録不要、サーバー通信なし、トラッキングなし。macOSネイティブのEventKitを使用。"
+    },
+    "lightweight": {
+      "title": "軽量設計",
+      "description": "Tauriで構築し、リソース消費を最小限に。小さなダウンロードサイズ、高速起動、低メモリ使用量。"
+    }
+  },
+  "CTA": {
+    "title": "数秒で始められます。",
+    "description": "Galopenをダウンロードし、カレンダーへのアクセスを許可するだけ。無料でオープンソース。",
+    "download": "Galopenをダウンロード"
+  },
+  "Footer": {
+    "madeBy": "Made by",
+    "openSource": "GitHubでオープンソース公開中",
+    "buyMeACoffee": "Buy Me a Coffee"
+  }
+}

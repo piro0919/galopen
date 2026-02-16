@@ -1,0 +1,49 @@
+{
+  "Metadata": {
+    "title": "Galopen",
+    "description": "A macOS menu bar app that shows your calendar events and auto-opens meeting URLs."
+  },
+  "Hero": {
+    "tagline": "Never miss a meeting again.",
+    "description": "Galopen lives in your macOS menu bar, showing upcoming calendar events and automatically opening meeting URLs right when you need them.",
+    "download": "Download for macOS",
+    "viewOnGithub": "View on GitHub"
+  },
+  "Features": {
+    "title": "Features",
+    "menuBar": {
+      "title": "Menu Bar Native",
+      "description": "Lives quietly in your menu bar. Click to see today's and tomorrow's schedule at a glance."
+    },
+    "autoOpen": {
+      "title": "Auto-Open Meetings",
+      "description": "Automatically opens Zoom, Google Meet, and Teams links at a configurable time before the meeting starts."
+    },
+    "countdown": {
+      "title": "Countdown Timer",
+      "description": "See how many minutes until your next meeting, right in the menu bar. Configurable display threshold."
+    },
+    "calendars": {
+      "title": "Calendar Filtering",
+      "description": "Toggle visibility of individual calendars. Works with all calendars synced to your Mac."
+    },
+    "privacy": {
+      "title": "Privacy First",
+      "description": "All data stays on your Mac. No accounts, no servers, no tracking. Uses the native macOS EventKit."
+    },
+    "lightweight": {
+      "title": "Lightweight",
+      "description": "Built with Tauri for minimal resource usage. Small download, fast startup, low memory footprint."
+    }
+  },
+  "CTA": {
+    "title": "Get started in seconds.",
+    "description": "Download Galopen, grant calendar access, and you're good to go. Free and open source.",
+    "download": "Download Galopen"
+  },
+  "Footer": {
+    "madeBy": "Made by",
+    "openSource": "Open Source on GitHub",
+    "buyMeACoffee": "Buy Me a Coffee"
+  }
+}

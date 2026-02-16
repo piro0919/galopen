@@ -1,1 +1,10 @@
+packages:
+  - lp
+
 approveBuilds: esbuild
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - sharp
