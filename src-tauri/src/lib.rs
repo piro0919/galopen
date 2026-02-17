@@ -69,7 +69,11 @@ pub fn run() {
                     }
                 })
                 .on_tray_icon_event(|tray, event| {
-                    tauri_plugin_positioner::on_tray_event(tray.app_handle(), &event);
+                    // Wrap in catch_unwind to prevent positioner panics from crashing the app
+                    let app_handle = tray.app_handle().clone();
+                    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        tauri_plugin_positioner::on_tray_event(&app_handle, &event);
+                    }));
 
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
@@ -79,9 +83,21 @@ pub fn run() {
                     {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            if window.is_visible().unwrap_or(false) {
+                            // Use match to safely handle is_visible errors
+                            let is_visible = match window.is_visible() {
+                                Ok(v) => v,
+                                Err(_) => {
+                                    // Window in invalid state, try to show it anyway
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                    return;
+                                }
+                            };
+
+                            if is_visible {
                                 let _ = window.hide();
                             } else {
+                                // move_window may fail if tray position unavailable, but continue anyway
                                 let _ = window.move_window(Position::TrayCenter);
                                 let _ = window.show();
                                 let _ = window.set_focus();
