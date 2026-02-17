@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
-import { load } from "@tauri-apps/plugin-store";
 import { Calendar, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarFilter } from "../components/CalendarFilter";
@@ -56,15 +54,6 @@ export function Home() {
   const { calendars, enabledIds, loaded, toggleCalendar } = useCalendars();
   const [showFilter, setShowFilter] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [trayCountdownMinutes, setTrayCountdownMinutes] = useState(30);
-
-  // Load tray countdown setting
-  useEffect(() => {
-    load("settings.json").then(async (store) => {
-      const val = (await store.get("trayCountdownMinutes")) as number | undefined;
-      if (val != null) setTrayCountdownMinutes(val);
-    });
-  }, []);
 
   // Update `now` every 30s to re-filter ended events
   const [now, setNow] = useState(() => new Date());
@@ -83,36 +72,6 @@ export function Home() {
       return !end || end > now;
     });
   }, [events, enabledIds, loaded, now]);
-
-  // Update menu bar tray title with countdown to next event
-  useEffect(() => {
-    const updateTray = () => {
-      const now = new Date();
-      const base = loaded
-        ? events.filter((e) => !e.calendarId || enabledIds.has(e.calendarId))
-        : events;
-      const next = base.find((e) => {
-        if (e.isAllDay || !e.start.dateTime) return false;
-        return new Date(e.start.dateTime) > now;
-      });
-      if (next?.start.dateTime) {
-        const mins = Math.ceil(
-          (new Date(next.start.dateTime).getTime() - now.getTime()) / 60000,
-        );
-        // 0 = always, otherwise show only within threshold
-        if (trayCountdownMinutes === 0 || mins <= trayCountdownMinutes) {
-          invoke("set_tray_title", { title: t.formatTrayDuration(mins) });
-        } else {
-          invoke("set_tray_title", { title: "" });
-        }
-      } else {
-        invoke("set_tray_title", { title: "" });
-      }
-    };
-    updateTray();
-    const id = setInterval(updateTray, 30_000);
-    return () => clearInterval(id);
-  }, [events, enabledIds, loaded, trayCountdownMinutes]);
 
   return (
     <div style={styles.container}>

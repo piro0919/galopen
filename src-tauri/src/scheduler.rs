@@ -8,8 +8,9 @@ use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
 const POLL_INTERVAL_SECS: u64 = 5 * 60; // 5 minutes
-const CHECK_INTERVAL_SECS: u64 = 30;
+const CHECK_INTERVAL_SECS: u64 = 10; // Reduced from 30 for more responsive tray updates
 const DEFAULT_MINUTES_BEFORE: i64 = 1;
+const DEFAULT_TRAY_COUNTDOWN_MINUTES: i64 = 30;
 
 struct SchedulerState {
     opened_meetings: Mutex<HashSet<String>>,
@@ -110,6 +111,89 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             .lock()
             .unwrap()
             .retain(|id| event_ids.contains(id));
+
+        // Update tray title with countdown to next event
+        update_tray_title(&app, &events);
+    }
+}
+
+fn update_tray_title(app: &tauri::AppHandle, events: &[crate::calendar::CalendarEvent]) {
+    let tray_countdown_minutes = app
+        .store("settings.json")
+        .ok()
+        .and_then(|store| store.get("trayCountdownMinutes"))
+        .and_then(|v| v.as_i64())
+        .unwrap_or(DEFAULT_TRAY_COUNTDOWN_MINUTES);
+
+    let now = Utc::now();
+
+    // Find next non-all-day event that starts in the future
+    let next_event = events.iter().find(|e| {
+        if e.is_all_day {
+            return false;
+        }
+        match parse_event_time(&e.start.date_time) {
+            Some(start) => start > now,
+            None => false,
+        }
+    });
+
+    let title = if let Some(event) = next_event {
+        if let Some(start) = parse_event_time(&event.start.date_time) {
+            let seconds_until = (start - now).num_seconds();
+            let mins = ((seconds_until + 59) / 60) as i64; // ceil division
+
+            // 0 = always show, otherwise show only within threshold
+            if tray_countdown_minutes == 0 || mins <= tray_countdown_minutes {
+                Some(format_tray_duration(mins))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    if let Some(tray) = app.tray_by_id("main") {
+        let _ = tray.set_title(title.as_deref());
+    }
+}
+
+fn format_tray_duration(mins: i64) -> String {
+    let is_ja = sys_locale::get_locale()
+        .map(|l| l.starts_with("ja"))
+        .unwrap_or(false);
+
+    if mins <= 0 {
+        return String::new();
+    }
+
+    if is_ja {
+        if mins < 60 {
+            format!("{}分", mins)
+        } else {
+            let h = mins / 60;
+            let m = mins % 60;
+            if m == 0 {
+                format!("{}時間", h)
+            } else {
+                format!("{}時間{}分", h, m)
+            }
+        }
+    } else {
+        if mins < 60 {
+            format!("{}m", mins)
+        } else {
+            let h = mins / 60;
+            let m = mins % 60;
+            if m == 0 {
+                format!("{}h", h)
+            } else {
+                format!("{}h{}m", h, m)
+            }
+        }
     }
 }
 
