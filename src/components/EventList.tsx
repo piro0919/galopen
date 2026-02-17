@@ -53,7 +53,7 @@ export function EventList({
         <Loader2
           size={24}
           strokeWidth={1.75}
-          color="#AEAEB2"
+          color="var(--text-tertiary)"
           className="spin"
         />
         <span style={styles.emptyText}>{t.loadingEvents}</span>
@@ -64,7 +64,7 @@ export function EventList({
   if (events.length === 0) {
     return (
       <div style={styles.empty}>
-        <CalendarOff size={32} strokeWidth={1.5} color="#AEAEB2" />
+        <CalendarOff size={32} strokeWidth={1.5} color="var(--text-tertiary)" />
         <span style={styles.emptyText}>{t.noEvents}</span>
       </div>
     );
@@ -82,7 +82,7 @@ export function EventList({
       {grouped.map(([dateKey, dayEvents]) => (
         <div key={dateKey}>
           <div style={styles.header}>
-            <CalendarDays size={14} strokeWidth={1.75} color="#6E6E73" />
+            <CalendarDays size={14} strokeWidth={1.75} color="var(--text-secondary)" />
             <h2 style={styles.title}>{formatDateLabel(dateKey)}</h2>
           </div>
           <div style={styles.list}>
@@ -110,7 +110,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: {
     fontSize: 12,
     fontWeight: 600,
-    color: "#6E6E73",
+    color: "var(--text-secondary)",
     textTransform: "uppercase",
     letterSpacing: "0.5px",
     margin: 0,
@@ -130,6 +130,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyText: {
     fontSize: 13,
-    color: "#AEAEB2",
+    color: "var(--text-tertiary)",
   },
 };

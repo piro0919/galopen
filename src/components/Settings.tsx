@@ -56,7 +56,7 @@ export function Settings() {
     <div style={styles.container}>
       <div style={styles.row}>
         <div style={styles.labelRow}>
-          <Bell size={14} strokeWidth={1.75} color="#6E6E73" />
+          <Bell size={14} strokeWidth={1.75} color="var(--text-secondary)" />
           <span style={styles.label}>{t.openBefore}</span>
         </div>
         <select
@@ -73,7 +73,7 @@ export function Settings() {
       </div>
       <div style={{ ...styles.row, marginTop: 12 }}>
         <div style={styles.labelRow}>
-          <Clock size={14} strokeWidth={1.75} color="#6E6E73" />
+          <Clock size={14} strokeWidth={1.75} color="var(--text-secondary)" />
           <span style={styles.label}>{t.trayCountdown}</span>
         </div>
         <select
@@ -90,7 +90,7 @@ export function Settings() {
       </div>
       <div style={{ ...styles.row, marginTop: 12 }}>
         <div style={styles.labelRow}>
-          <Power size={14} strokeWidth={1.75} color="#6E6E73" />
+          <Power size={14} strokeWidth={1.75} color="var(--text-secondary)" />
           <span style={styles.label}>{t.startAtLogin}</span>
         </div>
         <button
@@ -131,7 +131,7 @@ export function Settings() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: "12px 16px",
-    borderBottom: "1px solid #E5E5EA",
+    borderBottom: "1px solid var(--divider)",
   },
   row: {
     display: "flex",
@@ -148,15 +148,15 @@ const styles: Record<string, React.CSSProperties> = {
   label: {
     fontSize: 13,
     fontWeight: 500,
-    color: "#1D1D1F",
+    color: "var(--text-primary)",
   },
   select: {
     fontSize: 13,
     padding: "4px 8px",
     borderRadius: 6,
-    border: "1px solid #E5E5EA",
-    background: "#fff",
-    color: "#1D1D1F",
+    border: "1px solid var(--border-color)",
+    background: "var(--bg-card)",
+    color: "var(--text-primary)",
     cursor: "pointer",
     outline: "none",
   },
@@ -171,17 +171,17 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "background 0.2s",
   },
   toggleOn: {
-    background: "#007AFF",
+    background: "var(--toggle-on-bg)",
   },
   toggleOff: {
-    background: "#E5E5EA",
+    background: "var(--toggle-off-bg)",
   },
   toggleKnob: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    background: "#fff",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+    background: "var(--toggle-knob)",
+    boxShadow: "0 1px 3px var(--toggle-knob-shadow)",
     transition: "transform 0.2s",
   },
   knobOn: {
@@ -200,14 +200,14 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     padding: "8px 0",
     borderRadius: 8,
-    border: "1px solid #E5E5EA",
-    background: "#fff",
+    border: "1px solid var(--border-color)",
+    background: "var(--bg-card)",
     cursor: "pointer",
-    color: "#FF3B30",
+    color: "var(--quit-text)",
     transition: "all 0.15s ease",
   },
   quitBtnHover: {
-    background: "#FFF5F5",
-    borderColor: "#FFD4D1",
+    background: "var(--quit-hover-bg)",
+    borderColor: "var(--quit-hover-border)",
   },
 };

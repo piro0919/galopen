@@ -69,12 +69,12 @@ export { calendarColor };
 const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: "8px 16px 12px",
-    borderBottom: "1px solid #E5E5EA",
+    borderBottom: "1px solid var(--divider)",
   },
   sourceName: {
     fontSize: 11,
     fontWeight: 600,
-    color: "#AEAEB2",
+    color: "var(--text-tertiary)",
     textTransform: "uppercase",
     letterSpacing: "0.5px",
     padding: "6px 0 2px",
@@ -97,10 +97,10 @@ const styles: Record<string, React.CSSProperties> = {
     height: 10,
     borderRadius: "50%",
     flexShrink: 0,
-    boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)",
+    boxShadow: "var(--dot-inset-shadow)",
   },
   calName: {
     fontSize: 13,
-    color: "#1D1D1F",
+    color: "var(--text-primary)",
   },
 };

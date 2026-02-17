@@ -16,14 +16,14 @@ function App() {
           justifyContent: "center",
           height: "100vh",
           gap: 10,
-          background: "#F5F5F7",
+          background: "var(--bg-main)",
         }}
       >
         <img src="/icon.png" alt="" width={48} height={48} style={{ borderRadius: 10 }} />
         <Loader2
           size={20}
           strokeWidth={1.75}
-          color="#AEAEB2"
+          color="var(--text-tertiary)"
           className="spin"
         />
       </div>

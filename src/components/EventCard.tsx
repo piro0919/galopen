@@ -186,13 +186,13 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "flex-start",
     gap: 8,
     padding: "10px 12px",
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
-    boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+    boxShadow: "var(--shadow-card)",
     transition: "all 0.15s ease",
   },
   cardHover: {
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    boxShadow: "var(--shadow-card-hover)",
     transform: "translateY(-1px)",
   },
   dot: {
@@ -200,7 +200,7 @@ const styles: Record<string, React.CSSProperties> = {
     height: 8,
     borderRadius: "50%",
     flexShrink: 0,
-    boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)",
+    boxShadow: "var(--dot-inset-shadow)",
     marginTop: 4,
   },
   content: {
@@ -225,7 +225,7 @@ const styles: Record<string, React.CSSProperties> = {
   time: {
     fontSize: 12,
     fontWeight: 500,
-    color: "#6E6E73",
+    color: "var(--text-secondary)",
     minWidth: 90,
     fontVariantNumeric: "tabular-nums",
     flexShrink: 0,
@@ -233,7 +233,7 @@ const styles: Record<string, React.CSSProperties> = {
   summary: {
     fontSize: 13,
     fontWeight: 500,
-    color: "#1D1D1F",
+    color: "var(--text-primary)",
     lineHeight: 1.3,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -245,7 +245,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "none",
     border: "none",
     padding: 0,
-    color: "#007AFF",
+    color: "var(--primary)",
     cursor: "pointer",
     textAlign: "left" as const,
     lineHeight: 1.3,
@@ -264,16 +264,16 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
   },
   countdownNormal: {
-    background: "#E8F5E9",
-    color: "#2E7D32",
+    background: "var(--countdown-normal-bg)",
+    color: "var(--countdown-normal-text)",
   },
   countdownSoon: {
-    background: "#FFF3E0",
-    color: "#E65100",
+    background: "var(--countdown-soon-bg)",
+    color: "var(--countdown-soon-text)",
   },
   countdownUrgent: {
-    background: "#FFE5E5",
-    color: "#FF3B30",
+    background: "var(--countdown-urgent-bg)",
+    color: "var(--countdown-urgent-text)",
   },
   badge: {
     display: "inline-flex",
@@ -283,15 +283,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     padding: "3px 8px",
     borderRadius: 12,
-    background: "#E5F1FF",
-    color: "#007AFF",
+    background: "var(--badge-bg)",
+    color: "var(--badge-text)",
     border: "none",
     cursor: "pointer",
     flexShrink: 0,
     transition: "background 0.15s ease",
   },
   badgeHover: {
-    background: "#CCE3FF",
+    background: "var(--badge-bg-hover)",
   },
   copyBtn: {
     display: "inline-flex",
@@ -303,11 +303,11 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
     background: "none",
     cursor: "pointer",
-    color: "#AEAEB2",
+    color: "var(--text-tertiary)",
     flexShrink: 0,
     transition: "all 0.15s ease",
   },
   copyBtnDone: {
-    color: "#34A853",
+    color: "var(--copy-success)",
   },
 };

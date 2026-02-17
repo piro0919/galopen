@@ -37,11 +37,11 @@ function IconButton({
         cursor: "pointer",
         transition: "all 0.15s ease",
         background: active
-          ? "#007AFF"
+          ? "var(--primary)"
           : hovered
-            ? "rgba(0,0,0,0.06)"
+            ? "var(--bg-hover)"
             : "transparent",
-        color: active ? "#fff" : hovered ? "#1D1D1F" : "#6E6E73",
+        color: active ? "#fff" : hovered ? "var(--text-primary)" : "var(--text-secondary)",
       }}
     >
       <Icon size={16} strokeWidth={1.75} />
@@ -116,15 +116,15 @@ export function Home() {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     minHeight: "100vh",
-    background: "#F5F5F7",
+    background: "var(--bg-main)",
   },
   topBar: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "10px 16px",
-    background: "#EBEBED",
-    boxShadow: "0 1px 0 rgba(0,0,0,0.06)",
+    background: "var(--bg-topbar)",
+    boxShadow: "var(--shadow-topbar)",
   },
   topBarActions: {
     display: "flex",
@@ -133,7 +133,7 @@ const styles: Record<string, React.CSSProperties> = {
   appName: {
     fontSize: 15,
     fontWeight: 600,
-    color: "#1D1D1F",
+    color: "var(--text-primary)",
     letterSpacing: "-0.2px",
   },
 };

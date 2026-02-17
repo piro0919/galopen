@@ -5,7 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Galopen</title>
     <style>
-      body { margin: 0; background: #F5F5F7; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; }
+      :root {
+        /* Backgrounds */
+        --bg-main: #F5F5F7;
+        --bg-topbar: #EBEBED;
+        --bg-card: #fff;
+        --bg-elevated: #fff;
+
+        /* Text */
+        --text-primary: #1D1D1F;
+        --text-secondary: #6E6E73;
+        --text-tertiary: #AEAEB2;
+
+        /* Borders & Dividers */
+        --border-color: #E5E5EA;
+        --divider: #E5E5EA;
+
+        /* Shadows */
+        --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.08);
+        --shadow-topbar: 0 1px 0 rgba(0,0,0,0.06);
+        --dot-inset-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+
+        /* Interactive */
+        --bg-hover: rgba(0,0,0,0.06);
+        --primary: #007AFF;
+        --primary-hover: #0062CC;
+
+        /* Meeting badge */
+        --badge-bg: #E5F1FF;
+        --badge-bg-hover: #CCE3FF;
+        --badge-text: #007AFF;
+
+        /* Countdown states */
+        --countdown-normal-bg: #E8F5E9;
+        --countdown-normal-text: #2E7D32;
+        --countdown-soon-bg: #FFF3E0;
+        --countdown-soon-text: #E65100;
+        --countdown-urgent-bg: #FFE5E5;
+        --countdown-urgent-text: #FF3B30;
+
+        /* Toggle */
+        --toggle-off-bg: #E5E5EA;
+        --toggle-on-bg: #007AFF;
+        --toggle-knob: #fff;
+        --toggle-knob-shadow: rgba(0,0,0,0.15);
+
+        /* Quit button */
+        --quit-text: #FF3B30;
+        --quit-hover-bg: #FFF5F5;
+        --quit-hover-border: #FFD4D1;
+
+        /* Copy button */
+        --copy-success: #34A853;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          /* Backgrounds */
+          --bg-main: #1C1C1E;
+          --bg-topbar: #2C2C2E;
+          --bg-card: #2C2C2E;
+          --bg-elevated: #3A3A3C;
+
+          /* Text */
+          --text-primary: #F5F5F7;
+          --text-secondary: #98989D;
+          --text-tertiary: #636366;
+
+          /* Borders & Dividers */
+          --border-color: #38383A;
+          --divider: #38383A;
+
+          /* Shadows */
+          --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+          --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.4);
+          --shadow-topbar: 0 1px 0 rgba(0,0,0,0.3);
+          --dot-inset-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+
+          /* Interactive */
+          --bg-hover: rgba(255,255,255,0.1);
+          --primary: #0A84FF;
+          --primary-hover: #409CFF;
+
+          /* Meeting badge */
+          --badge-bg: #1A3A5C;
+          --badge-bg-hover: #234B75;
+          --badge-text: #0A84FF;
+
+          /* Countdown states */
+          --countdown-normal-bg: #1B3D20;
+          --countdown-normal-text: #81C784;
+          --countdown-soon-bg: #3D2A1A;
+          --countdown-soon-text: #FFB74D;
+          --countdown-urgent-bg: #3D1A1A;
+          --countdown-urgent-text: #FF6B60;
+
+          /* Toggle */
+          --toggle-off-bg: #636366;
+          --toggle-on-bg: #0A84FF;
+          --toggle-knob: #fff;
+          --toggle-knob-shadow: rgba(0,0,0,0.3);
+
+          /* Quit button */
+          --quit-text: #FF453A;
+          --quit-hover-bg: #3D1A1A;
+          --quit-hover-border: #5C2A2A;
+
+          /* Copy button */
+          --copy-success: #30D158;
+        }
+      }
+
+      body { margin: 0; background: var(--bg-main); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; color-scheme: light dark; }
       @keyframes spin { to { transform: rotate(360deg); } }
       .spin { animation: spin 1s linear infinite; }
     </style>
