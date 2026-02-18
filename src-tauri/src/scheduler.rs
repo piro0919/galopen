@@ -153,7 +153,9 @@ fn update_tray_title(app: &tauri::AppHandle, events: &[crate::calendar::Calendar
 
         // 0 = always show, otherwise show only within threshold
         if tray_countdown_minutes == 0 || mins <= tray_countdown_minutes {
-            Some(format_tray_duration(mins))
+            let formatted = format_tray_duration(mins);
+            // Return None if formatted is empty (mins <= 0) to clear tray title
+            if formatted.is_empty() { None } else { Some(formatted) }
         } else {
             None
         }
