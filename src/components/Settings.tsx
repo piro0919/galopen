@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
 import { Bell, Clock, LogOut, Power } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
@@ -13,6 +14,7 @@ export function Settings() {
   const [trayCountdown, setTrayCountdown] = useState(30);
   const [autostart, setAutostart] = useState(false);
   const [quitHovered, setQuitHovered] = useState(false);
+  const [version, setVersion] = useState("");
 
   useEffect(() => {
     load("settings.json").then(async (store) => {
@@ -22,6 +24,7 @@ export function Settings() {
       if (tray != null) setTrayCountdown(tray);
     });
     isEnabled().then(setAutostart).catch(() => {});
+    getVersion().then(setVersion).catch(() => {});
   }, []);
 
   const handleChange = async (value: number) => {
@@ -124,6 +127,9 @@ export function Settings() {
           {t.quitApp}
         </button>
       </div>
+      {version && (
+        <div style={styles.version}>v{version}</div>
+      )}
     </div>
   );
 }
@@ -209,5 +215,11 @@ const styles: Record<string, React.CSSProperties> = {
   quitBtnHover: {
     background: "var(--quit-hover-bg)",
     borderColor: "var(--quit-hover-border)",
+  },
+  version: {
+    marginTop: 12,
+    fontSize: 11,
+    color: "var(--text-tertiary)",
+    textAlign: "center" as const,
   },
 };

@@ -128,27 +128,32 @@ fn update_tray_title(app: &tauri::AppHandle, events: &[crate::calendar::Calendar
     let now = Utc::now();
 
     // Find next non-all-day event that starts in the future
-    let next_event = events.iter().find(|e| {
-        if e.is_all_day {
-            return false;
-        }
-        match parse_event_time(&e.start.date_time) {
-            Some(start) => start > now,
-            None => false,
-        }
-    });
+    // Use filter + min_by to explicitly find the closest future event
+    let next_event_with_start = events
+        .iter()
+        .filter(|e| !e.is_all_day)
+        .filter_map(|e| {
+            parse_event_time(&e.start.date_time).map(|start| (e, start))
+        })
+        .filter(|(_, start)| *start > now)
+        .min_by_key(|(_, start)| *start);
 
-    let title = if let Some(event) = next_event {
-        if let Some(start) = parse_event_time(&event.start.date_time) {
-            let seconds_until = (start - now).num_seconds();
-            let mins = ((seconds_until + 59) / 60) as i64; // ceil division
+    let title = if let Some((event, start)) = next_event_with_start {
+        let seconds_until = (start - now).num_seconds();
+        let mins = ((seconds_until + 59) / 60) as i64; // ceil division
 
-            // 0 = always show, otherwise show only within threshold
-            if tray_countdown_minutes == 0 || mins <= tray_countdown_minutes {
-                Some(format_tray_duration(mins))
-            } else {
-                None
-            }
+        log::debug!(
+            "Tray countdown: event='{}', start={}, now={}, seconds_until={}, mins={}",
+            event.summary,
+            start,
+            now,
+            seconds_until,
+            mins
+        );
+
+        // 0 = always show, otherwise show only within threshold
+        if tray_countdown_minutes == 0 || mins <= tray_countdown_minutes {
+            Some(format_tray_duration(mins))
         } else {
             None
         }
