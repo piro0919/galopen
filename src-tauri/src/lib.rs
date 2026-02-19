@@ -2,7 +2,7 @@ use tauri::{
     image::Image,
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    LogicalPosition, Manager, PhysicalPosition,
+    LogicalPosition, Manager,
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_updater::UpdaterExt;
@@ -79,34 +79,41 @@ pub fn run() {
                             // Use match to safely handle is_visible errors
                             let is_visible = match window.is_visible() {
                                 Ok(v) => v,
-                                Err(_) => {
-                                    // Window in invalid state, try to show it anyway
-                                    let _ = window.show();
-                                    let _ = window.set_focus();
-                                    return;
-                                }
+                                Err(_) => false,
                             };
 
                             if is_visible {
                                 let _ = window.hide();
                             } else {
+                                // Always hide first to ensure clean state for repositioning
+                                // This helps with multi-monitor switching
+                                let _ = window.hide();
+
                                 // Calculate window position manually using tray click position
                                 // This works correctly on multi-monitor setups unlike Position::TrayCenter
                                 let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                    if let Ok(size) = window.outer_size() {
-                                        // Position window centered horizontally below the tray icon
-                                        let x = position.x - (size.width as f64 / 2.0);
-                                        // Small offset below the menu bar
-                                        let y = position.y + 5.0;
-                                        let _ = window.set_position(PhysicalPosition::new(x, y));
+                                    // Get scale factor for the monitor where tray icon is located
+                                    let scale = window.scale_factor().unwrap_or(1.0);
+
+                                    // Get window size in logical pixels
+                                    let (width, _height) = if let Ok(size) = window.outer_size() {
+                                        (size.width as f64 / scale, size.height as f64 / scale)
                                     } else {
-                                        // Fallback: use logical position if size unavailable
-                                        let _ = window.set_position(LogicalPosition::new(
-                                            position.x - 200.0,
-                                            position.y + 5.0,
-                                        ));
-                                    }
+                                        (400.0, 600.0) // Default window size
+                                    };
+
+                                    // Position is in physical pixels, convert to logical for calculation
+                                    let logical_x = position.x / scale;
+                                    let logical_y = position.y / scale;
+
+                                    // Center window horizontally below the tray icon
+                                    let x = logical_x - (width / 2.0);
+                                    let y = logical_y + 5.0;
+
+                                    let _ = window.set_position(LogicalPosition::new(x, y));
                                 }));
+
+                                // Show window after positioning
                                 let _ = window.show();
                                 let _ = window.set_focus();
                             }
