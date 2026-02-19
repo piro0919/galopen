@@ -160,11 +160,19 @@ fn update_tray_title(app: &tauri::AppHandle, events: &[crate::calendar::Calendar
             None
         }
     } else {
+        log::debug!("Tray countdown: No upcoming events, clearing title");
         None
     };
 
     if let Some(tray) = app.tray_by_id("main") {
-        let _ = tray.set_title(title.as_deref());
+        // Use empty string to clear title instead of None
+        // None might mean "don't change" rather than "clear"
+        let title_str = title.as_deref().unwrap_or("");
+        log::debug!("Setting tray title to: '{}'", title_str);
+        let result = tray.set_title(Some(title_str));
+        if let Err(e) = result {
+            log::error!("Failed to set tray title: {}", e);
+        }
     }
 }
 

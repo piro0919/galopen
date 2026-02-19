@@ -148,8 +148,8 @@ fn quit_app(app: tauri::AppHandle) {
 #[tauri::command]
 fn set_tray_title(app: tauri::AppHandle, title: String) {
     if let Some(tray) = app.tray_by_id("main") {
-        let t = if title.is_empty() { None } else { Some(title.as_str()) };
-        let _ = tray.set_title(t);
+        // Always use Some() - empty string clears the title
+        let _ = tray.set_title(Some(title.as_str()));
     }
 }
 
