@@ -2,10 +2,9 @@ use tauri::{
     image::Image,
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager,
+    LogicalPosition, Manager, PhysicalPosition,
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
-use tauri_plugin_positioner::{Position, WindowExt as PositionerWindowExt};
 use tauri_plugin_updater::UpdaterExt;
 
 mod calendar;
@@ -30,7 +29,6 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_positioner::init())
         .manage(calendar::CalendarState::new())
         .invoke_handler(tauri::generate_handler![
             calendar::check_calendar_permission,
@@ -69,15 +67,10 @@ pub fn run() {
                     }
                 })
                 .on_tray_icon_event(|tray, event| {
-                    // Wrap in catch_unwind to prevent positioner panics from crashing the app
-                    let app_handle = tray.app_handle().clone();
-                    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        tauri_plugin_positioner::on_tray_event(&app_handle, &event);
-                    }));
-
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
+                        position,
                         ..
                     } = event
                     {
@@ -97,8 +90,23 @@ pub fn run() {
                             if is_visible {
                                 let _ = window.hide();
                             } else {
-                                // move_window may fail if tray position unavailable, but continue anyway
-                                let _ = window.move_window(Position::TrayCenter);
+                                // Calculate window position manually using tray click position
+                                // This works correctly on multi-monitor setups unlike Position::TrayCenter
+                                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                                    if let Ok(size) = window.outer_size() {
+                                        // Position window centered horizontally below the tray icon
+                                        let x = position.x - (size.width as f64 / 2.0);
+                                        // Small offset below the menu bar
+                                        let y = position.y + 5.0;
+                                        let _ = window.set_position(PhysicalPosition::new(x, y));
+                                    } else {
+                                        // Fallback: use logical position if size unavailable
+                                        let _ = window.set_position(LogicalPosition::new(
+                                            position.x - 200.0,
+                                            position.y + 5.0,
+                                        ));
+                                    }
+                                }));
                                 let _ = window.show();
                                 let _ = window.set_focus();
                             }
