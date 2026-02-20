@@ -13,7 +13,7 @@
     "release:generate-latest": "node -e \"const fs=require('fs');const v=process.env.npm_package_version;const sig=fs.readFileSync('src-tauri/target/release/bundle/macos/Galopen.app.tar.gz.sig','utf8').trim();const json={version:v,notes:'',pub_date:new Date().toISOString(),platforms:{'darwin-aarch64':{signature:sig,url:'https://github.com/piro0919/galopen/releases/download/v'+v+'/Galopen.app.tar.gz'}}};fs.writeFileSync('latest.json',JSON.stringify(json,null,2))\"",
     "release:upload": "pnpm release:generate-latest && gh release upload v$npm_package_version \"src-tauri/target/release/bundle/dmg/Galopen_${npm_package_version}_aarch64.dmg\" \"src-tauri/target/release/bundle/macos/Galopen.app.tar.gz\" \"src-tauri/target/release/bundle/macos/Galopen.app.tar.gz.sig\" latest.json --clobber"
   },
-  "packageManager": "pnpm@10.27.0",
+  "packageManager": "pnpm@10.30.1",
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.0",
     "@types/react": "^19.2.14",
