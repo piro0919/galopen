@@ -92,14 +92,27 @@ pub fn run() {
                                 // Calculate window position manually using tray click position
                                 // This works correctly on multi-monitor setups unlike Position::TrayCenter
                                 let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                    // Get scale factor for the monitor where tray icon is located
-                                    let scale = window.scale_factor().unwrap_or(1.0);
+                                    let monitors = window.available_monitors().unwrap_or_default();
+
+                                    // Find the monitor containing the click position (physical pixels)
+                                    let monitor = monitors.iter().find(|m| {
+                                        let pos = m.position();
+                                        let size = m.size();
+                                        position.x >= pos.x as f64
+                                            && position.x < (pos.x as f64 + size.width as f64)
+                                            && position.y >= pos.y as f64
+                                            && position.y < (pos.y as f64 + size.height as f64)
+                                    });
+
+                                    let scale = monitor
+                                        .map(|m| m.scale_factor())
+                                        .unwrap_or_else(|| window.scale_factor().unwrap_or(1.0));
 
                                     // Get window size in logical pixels
                                     let (width, _height) = if let Ok(size) = window.outer_size() {
                                         (size.width as f64 / scale, size.height as f64 / scale)
                                     } else {
-                                        (400.0, 600.0) // Default window size
+                                        (400.0, 600.0)
                                     };
 
                                     // Position is in physical pixels, convert to logical for calculation
@@ -107,8 +120,21 @@ pub fn run() {
                                     let logical_y = position.y / scale;
 
                                     // Center window horizontally below the tray icon
-                                    let x = logical_x - (width / 2.0);
+                                    let mut x = logical_x - (width / 2.0);
                                     let y = logical_y + 5.0;
+
+                                    // Clamp to monitor bounds so window doesn't overflow screen edges
+                                    if let Some(mon) = monitor {
+                                        let mon_pos = mon.position();
+                                        let mon_size = mon.size();
+                                        let mon_x = mon_pos.x as f64 / scale;
+                                        let mon_width = mon_size.width as f64 / scale;
+                                        let padding = 4.0;
+
+                                        let min_x = mon_x + padding;
+                                        let max_x = mon_x + mon_width - width - padding;
+                                        x = x.clamp(min_x, max_x);
+                                    }
 
                                     let _ = window.set_position(LogicalPosition::new(x, y));
                                 }));
