@@ -4,7 +4,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { Bell, Clock, Globe, LogOut, Power } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
-import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
+import { enable, disable } from "@tauri-apps/plugin-autostart";
 import { getInstalledApps, type AppOption } from "../lib/tauri";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
@@ -16,10 +16,15 @@ const MEETING_SERVICES = [
   { key: "webex", label: "Webex" },
 ] as const;
 
-export function Settings() {
+export function Settings({
+  autostart,
+  onAutostartChange,
+}: {
+  autostart: boolean | null;
+  onAutostartChange: (value: boolean) => void;
+}) {
   const [minutesBefore, setMinutesBefore] = useState(1);
   const [trayCountdown, setTrayCountdown] = useState(30);
-  const [autostart, setAutostart] = useState(false);
   const [quitHovered, setQuitHovered] = useState(false);
   const [version, setVersion] = useState("");
   const [installedApps, setInstalledApps] = useState<AppOption[]>([]);
@@ -34,7 +39,6 @@ export function Settings() {
       const ow = (await store.get("openWith")) as Record<string, string> | undefined;
       if (ow) setOpenWith(ow);
     });
-    isEnabled().then(setAutostart).catch(() => {});
     getVersion().then(setVersion).catch(() => {});
     getInstalledApps().then(setInstalledApps).catch(() => {});
   }, []);
@@ -65,10 +69,10 @@ export function Settings() {
     try {
       if (autostart) {
         await disable();
-        setAutostart(false);
+        onAutostartChange(false);
       } else {
         await enable();
-        setAutostart(true);
+        onAutostartChange(true);
       }
     } catch (e) {
       console.error("[galopen] autostart error:", e);
@@ -149,9 +153,11 @@ export function Settings() {
         <button
           type="button"
           onClick={handleAutostart}
+          disabled={autostart === null}
           style={{
             ...styles.toggle,
             ...(autostart ? styles.toggleOn : styles.toggleOff),
+            ...(autostart === null ? { opacity: 0.5 } : {}),
           }}
         >
           <div

@@ -1,5 +1,6 @@
 import { Calendar, Settings as SettingsIcon, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { isEnabled } from "@tauri-apps/plugin-autostart";
 import { CalendarFilter } from "../components/CalendarFilter";
 import { EventList } from "../components/EventList";
 import { Settings } from "../components/Settings";
@@ -54,12 +55,17 @@ export function Home() {
   const { calendars, enabledIds, loaded, toggleCalendar } = useCalendars();
   const [showFilter, setShowFilter] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [autostart, setAutostart] = useState<boolean | null>(null);
 
   // Update `now` every 30s to re-filter ended events
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    isEnabled().then(setAutostart).catch(() => setAutostart(false));
   }, []);
 
   const filteredEvents = useMemo(() => {
@@ -107,7 +113,7 @@ export function Home() {
           onToggle={toggleCalendar}
         />
       )}
-      {showSettings && <Settings />}
+      {showSettings && <Settings autostart={autostart} onAutostartChange={setAutostart} />}
       <EventList events={filteredEvents} loading={loading} />
     </div>
   );
