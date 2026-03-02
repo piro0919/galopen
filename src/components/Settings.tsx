@@ -127,7 +127,7 @@ export function Settings() {
                 <select
                   value={openWith[key] ?? "default"}
                   onChange={(e) => handleOpenWith(key, e.target.value)}
-                  style={styles.select}
+                  style={{ ...styles.select, width: 160 }}
                 >
                   <option value="default">{t.openWithDefault}</option>
                   {availableApps.map((app) => (
