@@ -18,15 +18,16 @@ function formatDateLabel(dateKey: string): string {
   const todayStr = today.toLocaleDateString("sv-SE");
   const tomorrowStr = tomorrow.toLocaleDateString("sv-SE");
 
-  if (dateKey === todayStr) return t.todaysSchedule;
-  if (dateKey === tomorrowStr) return t.tomorrow;
-  // For other dates, show localized date
   const d = new Date(`${dateKey}T00:00:00`);
-  return d.toLocaleDateString(navigator.language, {
+  const short = d.toLocaleDateString(navigator.language, {
     month: "numeric",
     day: "numeric",
     weekday: "short",
   });
+
+  if (dateKey === todayStr) return `${t.todaysSchedule} (${short})`;
+  if (dateKey === tomorrowStr) return `${t.tomorrow} (${short})`;
+  return short;
 }
 
 export function EventList({
