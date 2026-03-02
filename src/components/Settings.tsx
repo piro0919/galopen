@@ -8,7 +8,7 @@ import { enable, disable } from "@tauri-apps/plugin-autostart";
 import { getInstalledApps, type AppOption } from "../lib/tauri";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
-const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 0]; // 0 = always
+const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 90, 0]; // 0 = always
 const MEETING_SERVICES = [
   { key: "googleMeet", label: "Google Meet" },
   { key: "zoom", label: "Zoom" },

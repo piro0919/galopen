@@ -147,7 +147,7 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
     let start_date = start_date?;
     let end_date = end_date?;
     let is_all_day = unsafe { event.isAllDay() };
-    let event_id = unsafe { event.eventIdentifier() }
+    let event_id_base = unsafe { event.eventIdentifier() }
         .map(|s| s.to_string())
         .unwrap_or_default();
 
@@ -158,6 +158,9 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
 
     let start_chrono = nsdate_to_chrono(&start_date);
     let end_chrono = nsdate_to_chrono(&end_date);
+
+    // Recurring events share the same eventIdentifier, so append start time to make unique
+    let event_id = format!("{}_{}", event_id_base, start_chrono.timestamp());
 
     let status_raw = unsafe { event.status() };
     let status = if status_raw == EKEventStatus::Confirmed {
