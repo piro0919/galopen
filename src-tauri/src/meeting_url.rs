@@ -42,6 +42,21 @@ fn extract_raw_meeting_url(event: &CalendarEvent) -> Option<String> {
     None
 }
 
+/// Returns a service key for the given URL, or None if not a recognized meeting service.
+pub fn detect_meeting_service(url: &str) -> Option<&'static str> {
+    if url.contains("meet.google.com") {
+        Some("googleMeet")
+    } else if url.contains("zoom.us") {
+        Some("zoom")
+    } else if url.contains("teams.microsoft.com") {
+        Some("teams")
+    } else if url.contains("webex.com") {
+        Some("webex")
+    } else {
+        None
+    }
+}
+
 fn is_meeting_url(url: &str) -> bool {
     url.contains("zoom.us")
         || url.contains("meet.google.com")

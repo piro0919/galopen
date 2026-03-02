@@ -1,5 +1,5 @@
 use crate::calendar::{has_permission, sync_events, CalendarState};
-use crate::meeting_url::extract_meeting_url;
+use crate::meeting_url::{detect_meeting_service, extract_meeting_url};
 use chrono::{DateTime, Utc};
 use std::collections::HashSet;
 use std::sync::Mutex;
@@ -90,8 +90,30 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                         // Brief delay before opening
                         tokio::time::sleep(Duration::from_secs(3)).await;
 
-                        // Open the URL
-                        let _ = open::that(&url);
+                        // Determine which app to open with based on service type
+                        let open_with_app = detect_meeting_service(&url)
+                            .and_then(|service| {
+                                app.store("settings.json")
+                                    .ok()
+                                    .and_then(|store| store.get("openWith"))
+                                    .and_then(|v| v.as_object().cloned())
+                                    .and_then(|obj| obj.get(service).cloned())
+                                    .and_then(|v| v.as_str().map(|s| s.to_string()))
+                                    .filter(|s| s != "default")
+                            });
+
+                        match open_with_app {
+                            Some(app_path) => {
+                                log::info!("Opening with: {}", app_path);
+                                if open::with(&url, &app_path).is_err() {
+                                    log::warn!("Failed to open with {}, falling back to default", app_path);
+                                    let _ = open::that(&url);
+                                }
+                            }
+                            None => {
+                                let _ = open::that(&url);
+                            }
+                        }
 
                         state
                             .opened_meetings

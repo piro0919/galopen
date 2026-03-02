@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
-import { Bell, Clock, LogOut, Power } from "lucide-react";
+import { Bell, Clock, Globe, LogOut, Power } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
+import { getInstalledApps, type AppOption } from "../lib/tauri";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
 const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 0]; // 0 = always
+const MEETING_SERVICES = [
+  { key: "googleMeet", label: "Google Meet" },
+  { key: "zoom", label: "Zoom" },
+  { key: "teams", label: "Teams" },
+  { key: "webex", label: "Webex" },
+] as const;
 
 export function Settings() {
   const [minutesBefore, setMinutesBefore] = useState(1);
@@ -15,6 +22,8 @@ export function Settings() {
   const [autostart, setAutostart] = useState(false);
   const [quitHovered, setQuitHovered] = useState(false);
   const [version, setVersion] = useState("");
+  const [installedApps, setInstalledApps] = useState<AppOption[]>([]);
+  const [openWith, setOpenWith] = useState<Record<string, string>>({});
 
   useEffect(() => {
     load("settings.json").then(async (store) => {
@@ -22,9 +31,12 @@ export function Settings() {
       if (val != null) setMinutesBefore(val);
       const tray = (await store.get("trayCountdownMinutes")) as number | undefined;
       if (tray != null) setTrayCountdown(tray);
+      const ow = (await store.get("openWith")) as Record<string, string> | undefined;
+      if (ow) setOpenWith(ow);
     });
     isEnabled().then(setAutostart).catch(() => {});
     getVersion().then(setVersion).catch(() => {});
+    getInstalledApps().then(setInstalledApps).catch(() => {});
   }, []);
 
   const handleChange = async (value: number) => {
@@ -38,6 +50,14 @@ export function Settings() {
     setTrayCountdown(value);
     const store = await load("settings.json");
     await store.set("trayCountdownMinutes", value);
+    await store.save();
+  };
+
+  const handleOpenWith = async (service: string, appId: string) => {
+    const next = { ...openWith, [service]: appId };
+    setOpenWith(next);
+    const store = await load("settings.json");
+    await store.set("openWith", next);
     await store.save();
   };
 
@@ -91,6 +111,36 @@ export function Settings() {
           ))}
         </select>
       </div>
+      {installedApps.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <div style={styles.labelRow}>
+            <Globe size={14} strokeWidth={1.75} color="var(--text-secondary)" />
+            <span style={styles.label}>{t.openWithLabel}</span>
+          </div>
+          {MEETING_SERVICES.map(({ key, label }) => {
+            const availableApps = installedApps.filter(
+              (app) => app.serviceHint === null || app.serviceHint === key
+            );
+            return (
+              <div key={key} style={{ ...styles.row, marginTop: 8, paddingLeft: 20 }}>
+                <span style={styles.serviceLabel}>{label}</span>
+                <select
+                  value={openWith[key] ?? "default"}
+                  onChange={(e) => handleOpenWith(key, e.target.value)}
+                  style={styles.select}
+                >
+                  <option value="default">{t.openWithDefault}</option>
+                  {availableApps.map((app) => (
+                    <option key={app.id} value={app.id}>
+                      {app.serviceHint ? `${app.name} (${t.nativeApp})` : app.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          })}
+        </div>
+      )}
       <div style={{ ...styles.row, marginTop: 12 }}>
         <div style={styles.labelRow}>
           <Power size={14} strokeWidth={1.75} color="var(--text-secondary)" />
@@ -155,6 +205,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     fontWeight: 500,
     color: "var(--text-primary)",
+  },
+  serviceLabel: {
+    fontSize: 12,
+    color: "var(--text-secondary)",
+    minWidth: 80,
   },
   select: {
     fontSize: 13,

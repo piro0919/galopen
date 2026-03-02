@@ -39,6 +39,7 @@ pub fn run() {
             open_calendar_settings,
             quit_app,
             set_tray_title,
+            get_installed_apps,
         ])
         .setup(|app| {
             // Hide dock icon - menu bar only app
@@ -192,6 +193,49 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
         // Always use Some() - empty string clears the title
         let _ = tray.set_title(Some(title.as_str()));
     }
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AppOption {
+    id: String,
+    name: String,
+    service_hint: Option<String>,
+}
+
+#[tauri::command]
+fn get_installed_apps() -> Vec<AppOption> {
+    let candidates: Vec<(&str, Option<&str>)> = vec![
+        // Browsers
+        ("Google Chrome", None),
+        ("Safari", None),
+        ("Firefox", None),
+        ("Arc", None),
+        ("Microsoft Edge", None),
+        ("Brave Browser", None),
+        ("Vivaldi", None),
+        ("Opera", None),
+        // Native meeting apps
+        ("zoom.us", Some("zoom")),
+        ("Microsoft Teams", Some("teams")),
+        ("Webex", Some("webex")),
+    ];
+
+    candidates
+        .into_iter()
+        .filter_map(|(name, hint)| {
+            let path = format!("/Applications/{}.app", name);
+            if std::path::Path::new(&path).exists() {
+                Some(AppOption {
+                    id: path,
+                    name: name.to_string(),
+                    service_hint: hint.map(|s| s.to_string()),
+                })
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {

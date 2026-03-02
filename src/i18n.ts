@@ -32,6 +32,9 @@ interface Messages {
   trayCountdown: string;
   trayMinutes: string;
   trayAlways: string;
+  openWithLabel: string;
+  openWithDefault: string;
+  nativeApp: string;
 }
 
 const ja: Messages = {
@@ -81,6 +84,9 @@ const ja: Messages = {
   trayCountdown: "トレイのカウントダウン",
   trayMinutes: "分前から",
   trayAlways: "常に表示",
+  openWithLabel: "会議を開くアプリ",
+  openWithDefault: "デフォルト",
+  nativeApp: "アプリ",
 };
 
 const en: Messages = {
@@ -129,6 +135,9 @@ const en: Messages = {
   trayCountdown: "Tray countdown",
   trayMinutes: "min before",
   trayAlways: "Always",
+  openWithLabel: "Open meetings with",
+  openWithDefault: "Default",
+  nativeApp: "App",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;
