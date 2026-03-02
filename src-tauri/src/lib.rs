@@ -339,8 +339,18 @@ async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {
 
     match update.install(bytes) {
         Ok(_) => {
+            let done_msg = if is_ja {
+                "アップデートが完了しました。\nアプリを自動で再起動します。"
+            } else {
+                "Update complete.\nThe app will restart automatically."
+            };
+            app.dialog()
+                .message(done_msg)
+                .title(title)
+                .blocking_show();
             // Relaunch via `open` command as workaround for Tauri macOS restart bug
             // https://github.com/tauri-apps/tauri/issues/13923
+            // Must spawn AFTER dialog so `sleep 1` runs after app.exit(0)
             if let Ok(path) = std::env::current_exe() {
                 // Walk up from binary to .app bundle
                 // e.g. Galopen.app/Contents/MacOS/Galopen -> Galopen.app
@@ -353,15 +363,6 @@ async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {
                         .spawn();
                 }
             }
-            let done_msg = if is_ja {
-                "アップデートが完了しました。\nアプリを自動で再起動します。"
-            } else {
-                "Update complete.\nThe app will restart automatically."
-            };
-            app.dialog()
-                .message(done_msg)
-                .title(title)
-                .blocking_show();
             app.exit(0);
         }
         Err(e) => {
