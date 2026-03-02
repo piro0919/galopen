@@ -2,6 +2,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, Copy, ExternalLink, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { t } from "../i18n";
+import { openMeetingUrl } from "../lib/tauri";
 import type { CalendarEvent } from "../types";
 import { calendarColor } from "./CalendarFilter";
 
@@ -148,7 +149,7 @@ export function EventCard({
                   ...styles.badge,
                   ...(badgeHovered ? styles.badgeHover : {}),
                 }}
-                onClick={() => openUrl(meeting.url)}
+                onClick={() => openMeetingUrl(meeting.url, event.calendarAccountName)}
                 onMouseEnter={() => setBadgeHovered(true)}
                 onMouseLeave={() => setBadgeHovered(false)}
               >

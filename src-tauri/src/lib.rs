@@ -5,6 +5,7 @@ use tauri::{
     LogicalPosition, Manager,
 };
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+use tauri_plugin_store::StoreExt;
 use tauri_plugin_updater::UpdaterExt;
 
 mod calendar;
@@ -40,6 +41,7 @@ pub fn run() {
             quit_app,
             set_tray_title,
             get_installed_apps,
+            open_meeting_url,
         ])
         .setup(|app| {
             // Hide dock icon - menu bar only app
@@ -192,6 +194,46 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
     if let Some(tray) = app.tray_by_id("main") {
         // Always use Some() - empty string clears the title
         let _ = tray.set_title(Some(title.as_str()));
+    }
+}
+
+#[tauri::command]
+fn open_meeting_url(app: tauri::AppHandle, url: String, account: Option<String>) {
+    // Append ?authuser=email for Google Meet URLs
+    let url = if url.contains("meet.google.com") && !url.contains("authuser") {
+        if let Some(ref acct) = account {
+            if acct.contains('@') {
+                let sep = if url.contains('?') { "&" } else { "?" };
+                format!("{}{}authuser={}", url, sep, acct)
+            } else {
+                url
+            }
+        } else {
+            url
+        }
+    } else {
+        url
+    };
+
+    let open_with_app = meeting_url::detect_meeting_service(&url).and_then(|service| {
+        app.store("settings.json")
+            .ok()
+            .and_then(|store| store.get("openWith"))
+            .and_then(|v| v.as_object().cloned())
+            .and_then(|obj| obj.get(service).cloned())
+            .and_then(|v| v.as_str().map(|s| s.to_string()))
+            .filter(|s| s != "default")
+    });
+
+    match open_with_app {
+        Some(app_path) => {
+            if open::with(&url, &app_path).is_err() {
+                let _ = open::that(&url);
+            }
+        }
+        None => {
+            let _ = open::that(&url);
+        }
     }
 }
 

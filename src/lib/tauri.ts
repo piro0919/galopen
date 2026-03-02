@@ -23,3 +23,6 @@ export const forceSync = () => invoke<CalendarEvent[]>("force_sync");
 export const openCalendarSettings = () => invoke("open_calendar_settings");
 
 export const getInstalledApps = () => invoke<AppOption[]>("get_installed_apps");
+
+export const openMeetingUrl = (url: string, account?: string | null) =>
+  invoke("open_meeting_url", { url, account: account ?? null });
