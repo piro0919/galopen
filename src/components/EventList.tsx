@@ -71,16 +71,21 @@ export function EventList({
     );
   }
 
-  // Track the next 2 non-all-day future events TODAY only
+  // Show countdown for: the very next event (always) + any within 4 hours, today only
   const now = new Date();
   const todayStr = now.toLocaleDateString("sv-SE");
+  const horizon = now.getTime() + 4 * 60 * 60 * 1000;
   const nextIds = new Set<string>();
+  let foundFirst = false;
   for (const e of events) {
-    if (nextIds.size >= 2) break;
     if (e.isAllDay || !e.start.dateTime) continue;
     const start = new Date(e.start.dateTime);
-    if (start > now && start.toLocaleDateString("sv-SE") === todayStr) {
+    if (start <= now || start.toLocaleDateString("sv-SE") !== todayStr) continue;
+    if (!foundFirst || start.getTime() <= horizon) {
       nextIds.add(e.id);
+      foundFirst = true;
+    } else {
+      break;
     }
   }
 
