@@ -23,6 +23,7 @@ pub struct CalendarEvent {
     pub status: Option<String>,
     pub calendar_id: Option<String>,
     pub calendar_name: Option<String>,
+    pub calendar_account_name: Option<String>,
     pub external_url: Option<String>,
 }
 
@@ -177,6 +178,10 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
         let t: Option<Retained<NSString>> = unsafe { objc2::msg_send![c, title] };
         t.map(|s| s.to_string())
     });
+    let calendar_account_name = cal
+        .as_ref()
+        .and_then(|c| unsafe { c.source() })
+        .map(|s| unsafe { s.title() }.to_string());
 
     // calendarItemExternalURI - use objc2 exception handling to avoid crash
     let external_url: Option<String> = unsafe {
@@ -221,6 +226,7 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
         status,
         calendar_id,
         calendar_name,
+        calendar_account_name,
         external_url,
     })
 }

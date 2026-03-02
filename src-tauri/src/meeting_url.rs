@@ -2,6 +2,22 @@ use crate::calendar::CalendarEvent;
 use regex::Regex;
 
 pub fn extract_meeting_url(event: &CalendarEvent) -> Option<String> {
+    let url = extract_raw_meeting_url(event)?;
+
+    // For Google Meet URLs, append ?authuser=<email> if the calendar account looks like an email
+    if url.contains("meet.google.com") {
+        if let Some(ref account) = event.calendar_account_name {
+            if account.contains('@') && !url.contains("authuser") {
+                let separator = if url.contains('?') { "&" } else { "?" };
+                return Some(format!("{}{}authuser={}", url, separator, account));
+            }
+        }
+    }
+
+    Some(url)
+}
+
+fn extract_raw_meeting_url(event: &CalendarEvent) -> Option<String> {
     // Priority 1: event URL property
     if let Some(ref url) = event.url {
         if is_meeting_url(url) {

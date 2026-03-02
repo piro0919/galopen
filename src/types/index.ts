@@ -15,6 +15,7 @@ export interface CalendarEvent {
   status: string | null;
   calendarId: string | null;
   calendarName: string | null;
+  calendarAccountName: string | null;
   externalUrl: string | null;
 }
 
