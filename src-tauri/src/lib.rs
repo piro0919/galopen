@@ -115,7 +115,7 @@ pub fn run() {
                                     let (width, _height) = if let Ok(size) = window.outer_size() {
                                         (size.width as f64 / scale, size.height as f64 / scale)
                                     } else {
-                                        (400.0, 600.0)
+                                        (400.0, 480.0)
                                     };
 
                                     // Position is in physical pixels, convert to logical for calculation

@@ -71,12 +71,18 @@ export function EventList({
     );
   }
 
-  // Track which is the first non-all-day future event across all groups
+  // Track the next 2 non-all-day future events TODAY only
   const now = new Date();
-  const firstNextId = events.find((e) => {
-    if (e.isAllDay || !e.start.dateTime) return false;
-    return new Date(e.start.dateTime) > now;
-  })?.id;
+  const todayStr = now.toLocaleDateString("sv-SE");
+  const nextIds = new Set<string>();
+  for (const e of events) {
+    if (nextIds.size >= 2) break;
+    if (e.isAllDay || !e.start.dateTime) continue;
+    const start = new Date(e.start.dateTime);
+    if (start > now && start.toLocaleDateString("sv-SE") === todayStr) {
+      nextIds.add(e.id);
+    }
+  }
 
   return (
     <div>
@@ -91,7 +97,7 @@ export function EventList({
               <EventCard
                 key={event.id}
                 event={event}
-                isNext={event.id === firstNextId}
+                isNext={nextIds.has(event.id)}
               />
             ))}
           </div>
