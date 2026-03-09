@@ -12,6 +12,13 @@ const CHECK_INTERVAL_SECS: u64 = 10; // Reduced from 30 for more responsive tray
 const DEFAULT_MINUTES_BEFORE: i64 = 1;
 const DEFAULT_TRAY_COUNTDOWN_MINUTES: i64 = 30;
 
+/// Check if the current system locale is Japanese
+fn is_japanese_locale() -> bool {
+    sys_locale::get_locale()
+        .map(|l| l.starts_with("ja"))
+        .unwrap_or(false)
+}
+
 struct SchedulerState {
     opened_meetings: Mutex<HashSet<String>>,
     last_poll: Mutex<std::time::Instant>,
@@ -85,7 +92,9 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                         );
 
                         // Send notification
-                        let _ = send_notification(&app, &event.summary);
+                        if let Err(e) = send_notification(&app, &event.summary) {
+                            log::warn!("Failed to send notification: {}", e);
+                        }
 
                         // Brief delay before opening
                         tokio::time::sleep(Duration::from_secs(3)).await;
@@ -105,13 +114,17 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                         match open_with_app {
                             Some(app_path) => {
                                 log::info!("Opening with: {}", app_path);
-                                if open::with(&url, &app_path).is_err() {
-                                    log::warn!("Failed to open with {}, falling back to default", app_path);
-                                    let _ = open::that(&url);
+                                if let Err(e) = open::with(&url, &app_path) {
+                                    log::warn!("Failed to open with {}: {}, falling back to default", app_path, e);
+                                    if let Err(e) = open::that(&url) {
+                                        log::error!("Failed to open URL with default handler: {}", e);
+                                    }
                                 }
                             }
                             None => {
-                                let _ = open::that(&url);
+                                if let Err(e) = open::that(&url) {
+                                    log::error!("Failed to open URL: {}", e);
+                                }
                             }
                         }
 
@@ -199,9 +212,7 @@ fn update_tray_title(app: &tauri::AppHandle, events: &[crate::calendar::Calendar
 }
 
 fn format_tray_duration(mins: i64) -> String {
-    let is_ja = sys_locale::get_locale()
-        .map(|l| l.starts_with("ja"))
-        .unwrap_or(false);
+    let is_ja = is_japanese_locale();
 
     if mins <= 0 {
         return String::new();
@@ -241,15 +252,14 @@ fn parse_event_time(date_time_str: &Option<String>) -> Option<DateTime<Utc>> {
         .map(|dt| dt.with_timezone(&Utc))
 }
 
-fn send_notification(app: &tauri::AppHandle, summary: &str) {
+fn send_notification(app: &tauri::AppHandle, summary: &str) -> Result<(), Box<dyn std::error::Error>> {
     use tauri_plugin_notification::NotificationExt;
-    let is_ja = sys_locale::get_locale()
-        .map(|l| l.starts_with("ja"))
-        .unwrap_or(false);
+    let is_ja = is_japanese_locale();
     let body = if is_ja {
         format!("開始: {}", summary)
     } else {
         format!("Opening: {}", summary)
     };
-    let _ = app.notification().builder().title("Galopen").body(body).show();
+    app.notification().builder().title("Galopen").body(body).show()?;
+    Ok(())
 }

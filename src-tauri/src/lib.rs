@@ -24,8 +24,12 @@ pub fn run() {
         ))
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
-                let _ = window.set_focus();
+                if let Err(e) = window.show() {
+                    log::warn!("Failed to show window on single instance activation: {}", e);
+                }
+                if let Err(e) = window.set_focus() {
+                    log::warn!("Failed to focus window on single instance activation: {}", e);
+                }
             }
         }))
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -82,15 +86,22 @@ pub fn run() {
                             // Use match to safely handle is_visible errors
                             let is_visible = match window.is_visible() {
                                 Ok(v) => v,
-                                Err(_) => false,
+                                Err(e) => {
+                                    log::warn!("Failed to check window visibility: {}", e);
+                                    false
+                                }
                             };
 
                             if is_visible {
-                                let _ = window.hide();
+                                if let Err(e) = window.hide() {
+                                    log::warn!("Failed to hide window: {}", e);
+                                }
                             } else {
                                 // Always hide first to ensure clean state for repositioning
                                 // This helps with multi-monitor switching
-                                let _ = window.hide();
+                                if let Err(e) = window.hide() {
+                                    log::warn!("Failed to hide window before repositioning: {}", e);
+                                }
 
                                 // Calculate window position manually using tray click position
                                 // This works correctly on multi-monitor setups unlike Position::TrayCenter
@@ -143,8 +154,12 @@ pub fn run() {
                                 }));
 
                                 // Show window after positioning
-                                let _ = window.show();
-                                let _ = window.set_focus();
+                                if let Err(e) = window.show() {
+                                    log::warn!("Failed to show window: {}", e);
+                                }
+                                if let Err(e) = window.set_focus() {
+                                    log::warn!("Failed to focus window: {}", e);
+                                }
                             }
                         }
                     }
@@ -168,10 +183,14 @@ pub fn run() {
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 api.prevent_close();
-                let _ = window.hide();
+                if let Err(e) = window.hide() {
+                    log::warn!("Failed to hide window on close request: {}", e);
+                }
             }
             tauri::WindowEvent::Focused(false) => {
-                let _ = window.hide();
+                if let Err(e) = window.hide() {
+                    log::warn!("Failed to hide window on focus loss: {}", e);
+                }
             }
             _ => {}
         })
@@ -181,7 +200,9 @@ pub fn run() {
 
 #[tauri::command]
 fn open_calendar_settings() {
-    let _ = open::that("x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars");
+    if let Err(e) = open::that("x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
+        log::warn!("Failed to open calendar settings: {}", e);
+    }
 }
 
 #[tauri::command]
@@ -193,28 +214,17 @@ fn quit_app(app: tauri::AppHandle) {
 fn set_tray_title(app: tauri::AppHandle, title: String) {
     if let Some(tray) = app.tray_by_id("main") {
         // Always use Some() - empty string clears the title
-        let _ = tray.set_title(Some(title.as_str()));
+        if let Err(e) = tray.set_title(Some(title.as_str())) {
+            log::warn!("Failed to set tray title: {}", e);
+        }
     }
 }
 
 #[tauri::command]
-fn open_meeting_url(app: tauri::AppHandle, url: String, account: Option<String>) {
-    // Append ?authuser=email for Google Meet URLs
-    let url = if url.contains("meet.google.com") && !url.contains("authuser") {
-        if let Some(ref acct) = account {
-            if acct.contains('@') {
-                let sep = if url.contains('?') { "&" } else { "?" };
-                format!("{}{}authuser={}", url, sep, acct)
-            } else {
-                url
-            }
-        } else {
-            url
-        }
-    } else {
-        url
-    };
-
+fn open_meeting_url(app: tauri::AppHandle, url: String, _account: Option<String>) {
+    // Note: Google Meet authuser handling is done by meeting_url::extract_meeting_url
+    // when the URL is extracted from the event, so we don't duplicate it here.
+    
     let open_with_app = meeting_url::detect_meeting_service(&url).and_then(|service| {
         app.store("settings.json")
             .ok()
@@ -227,12 +237,17 @@ fn open_meeting_url(app: tauri::AppHandle, url: String, account: Option<String>)
 
     match open_with_app {
         Some(app_path) => {
-            if open::with(&url, &app_path).is_err() {
-                let _ = open::that(&url);
+            if let Err(e) = open::with(&url, &app_path) {
+                log::warn!("Failed to open URL with {}: {}, falling back to default", app_path, e);
+                if let Err(e) = open::that(&url) {
+                    log::error!("Failed to open URL with default handler: {}", e);
+                }
             }
         }
         None => {
-            let _ = open::that(&url);
+            if let Err(e) = open::that(&url) {
+                log::error!("Failed to open URL: {}", e);
+            }
         }
     }
 }
