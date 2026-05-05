@@ -301,14 +301,18 @@ fn fetch_calendars_inner(store: &EKEventStore) -> Result<Vec<CalendarInfo>, Stri
 fn fetch_todays_events_inner(
     store: &EKEventStore,
 ) -> Result<Vec<CalendarEvent>, String> {
+    // Fetch a wide range so the UI can display today / +1 / +2 days, plus extra
+    // days when "weekdays only" mode skips weekends/holidays. The scheduler
+    // only fires for events approaching their start time, so the wider range
+    // does not affect auto-open behavior.
     let today = Local::now().date_naive();
-    let tomorrow = today + chrono::Duration::days(1);
+    let end_day = today + chrono::Duration::days(7);
     let start_of_day = today
         .and_hms_opt(0, 0, 0)
         .ok_or("Failed to create start of day")?;
-    let end_of_tomorrow = tomorrow
+    let end_of_range = end_day
         .and_hms_opt(23, 59, 59)
-        .ok_or("Failed to create end of tomorrow")?;
+        .ok_or("Failed to create end of range")?;
 
     let start_utc = Local
         .from_local_datetime(&start_of_day)
@@ -316,7 +320,7 @@ fn fetch_todays_events_inner(
         .ok_or("Failed to convert start to UTC")?
         .with_timezone(&Utc);
     let end_utc = Local
-        .from_local_datetime(&end_of_tomorrow)
+        .from_local_datetime(&end_of_range)
         .single()
         .ok_or("Failed to convert end to UTC")?
         .with_timezone(&Utc);

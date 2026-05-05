@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
-import { Bell, Clock, Globe, LogOut, Power } from "lucide-react";
+import { Bell, CalendarRange, Clock, Globe, LogOut, Power, Sun } from "lucide-react";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
 import { enable, disable } from "@tauri-apps/plugin-autostart";
 import { getInstalledApps, type AppOption } from "../lib/tauri";
+import type { DisplayRange } from "../hooks/useDisplaySettings";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
 const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 90, 0]; // 0 = always
@@ -19,9 +20,17 @@ const MEETING_SERVICES = [
 export function Settings({
   autostart,
   onAutostartChange,
+  displayRange,
+  onDisplayRangeChange,
+  weekdaysOnly,
+  onWeekdaysOnlyChange,
 }: {
   autostart: boolean | null;
   onAutostartChange: (value: boolean) => void;
+  displayRange: DisplayRange;
+  onDisplayRangeChange: (value: DisplayRange) => void;
+  weekdaysOnly: boolean;
+  onWeekdaysOnlyChange: (value: boolean) => void;
 }) {
   const [minutesBefore, setMinutesBefore] = useState(1);
   const [trayCountdown, setTrayCountdown] = useState(30);
@@ -97,6 +106,42 @@ export function Settings({
             </option>
           ))}
         </select>
+      </div>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <CalendarRange size={14} strokeWidth={1.75} color="var(--text-secondary)" />
+          <span style={styles.label}>{t.displayRange}</span>
+        </div>
+        <select
+          value={displayRange}
+          onChange={(e) => onDisplayRangeChange(Number(e.target.value) as DisplayRange)}
+          style={styles.select}
+        >
+          <option value={1}>{t.rangeToday}</option>
+          <option value={2}>{t.rangeUntilTomorrow}</option>
+          <option value={3}>{t.rangeUntilDayAfter}</option>
+        </select>
+      </div>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <Sun size={14} strokeWidth={1.75} color="var(--text-secondary)" />
+          <span style={styles.label}>{t.weekdaysOnly}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onWeekdaysOnlyChange(!weekdaysOnly)}
+          style={{
+            ...styles.toggle,
+            ...(weekdaysOnly ? styles.toggleOn : styles.toggleOff),
+          }}
+        >
+          <div
+            style={{
+              ...styles.toggleKnob,
+              ...(weekdaysOnly ? styles.knobOn : styles.knobOff),
+            }}
+          />
+        </button>
       </div>
       <div style={{ ...styles.row, marginTop: 12 }}>
         <div style={styles.labelRow}>

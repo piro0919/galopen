@@ -5,8 +5,10 @@ import { CalendarFilter } from "../components/CalendarFilter";
 import { EventList } from "../components/EventList";
 import { Settings } from "../components/Settings";
 import { useCalendars } from "../hooks/useCalendars";
+import { useDisplaySettings } from "../hooks/useDisplaySettings";
 import { useEvents } from "../hooks/useEvents";
 import { t } from "../i18n";
+import { computeVisibleDates } from "../lib/dateRange";
 
 function IconButton({
   icon: Icon,
@@ -53,6 +55,7 @@ function IconButton({
 export function Home() {
   const { events, loading } = useEvents();
   const { calendars, enabledIds, loaded, toggleCalendar } = useCalendars();
+  const { range, weekdaysOnly, setRange, setWeekdaysOnly } = useDisplaySettings();
   const [showFilter, setShowFilter] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [autostart, setAutostart] = useState<boolean | null>(null);
@@ -68,7 +71,7 @@ export function Home() {
     isEnabled().then(setAutostart).catch(() => setAutostart(false));
   }, []);
 
-  const filteredEvents = useMemo(() => {
+  const calendarFiltered = useMemo(() => {
     const base = loaded
       ? events.filter((e) => !e.calendarId || enabledIds.has(e.calendarId))
       : events;
@@ -78,6 +81,16 @@ export function Home() {
       return !end || end > now;
     });
   }, [events, enabledIds, loaded, now]);
+
+  const filteredEvents = useMemo(() => {
+    const visible = computeVisibleDates(range, weekdaysOnly, calendarFiltered, now);
+    return calendarFiltered.filter((e) => {
+      const key = e.start.dateTime
+        ? new Date(e.start.dateTime).toLocaleDateString("sv-SE")
+        : (e.start.date ?? "");
+      return visible.has(key);
+    });
+  }, [calendarFiltered, range, weekdaysOnly, now]);
 
   return (
     <div style={styles.container}>
@@ -113,7 +126,16 @@ export function Home() {
           onToggle={toggleCalendar}
         />
       )}
-      {showSettings && <Settings autostart={autostart} onAutostartChange={setAutostart} />}
+      {showSettings && (
+        <Settings
+          autostart={autostart}
+          onAutostartChange={setAutostart}
+          displayRange={range}
+          onDisplayRangeChange={setRange}
+          weekdaysOnly={weekdaysOnly}
+          onWeekdaysOnlyChange={setWeekdaysOnly}
+        />
+      )}
       <EventList events={filteredEvents} loading={loading} />
     </div>
   );

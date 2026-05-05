@@ -35,6 +35,11 @@ interface Messages {
   openWithLabel: string;
   openWithDefault: string;
   nativeApp: string;
+  displayRange: string;
+  rangeToday: string;
+  rangeUntilTomorrow: string;
+  rangeUntilDayAfter: string;
+  weekdaysOnly: string;
 }
 
 const ja: Messages = {
@@ -87,6 +92,11 @@ const ja: Messages = {
   openWithLabel: "会議を開くアプリ",
   openWithDefault: "デフォルト",
   nativeApp: "アプリ",
+  displayRange: "表示範囲",
+  rangeToday: "今日",
+  rangeUntilTomorrow: "明日まで",
+  rangeUntilDayAfter: "明後日まで",
+  weekdaysOnly: "土日祝をスキップ",
 };
 
 const en: Messages = {
@@ -138,6 +148,11 @@ const en: Messages = {
   openWithLabel: "Open meetings with",
   openWithDefault: "Default",
   nativeApp: "App",
+  displayRange: "Display range",
+  rangeToday: "Today",
+  rangeUntilTomorrow: "Through tomorrow",
+  rangeUntilDayAfter: "Through day after",
+  weekdaysOnly: "Skip weekends & holidays",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;
