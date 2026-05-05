@@ -82,25 +82,14 @@ export function Home() {
     });
   }, [events, enabledIds, loaded, now]);
 
-  const { filteredEvents, debugInfo } = useMemo(() => {
+  const filteredEvents = useMemo(() => {
     const visible = computeVisibleDates(range, weekdaysOnly, calendarFiltered, now);
-    const filtered = calendarFiltered.filter((e) => {
+    return calendarFiltered.filter((e) => {
       const key = e.start.dateTime
         ? new Date(e.start.dateTime).toLocaleDateString("sv-SE")
         : (e.start.date ?? "");
       return visible.has(key);
     });
-    const dateKeys = new Set<string>();
-    for (const e of filtered) {
-      const k = e.start.dateTime
-        ? new Date(e.start.dateTime).toLocaleDateString("sv-SE")
-        : (e.start.date ?? "");
-      if (k) dateKeys.add(k);
-    }
-    return {
-      filteredEvents: filtered,
-      debugInfo: `r=${range} w=${weekdaysOnly ? 1 : 0} vis=[${[...visible].join(",")}] groups=${dateKeys.size}=[${[...dateKeys].join(",")}] all=${calendarFiltered.length} flt=${filtered.length}`,
-    };
   }, [calendarFiltered, range, weekdaysOnly, now]);
 
   return (
@@ -147,9 +136,6 @@ export function Home() {
           onWeekdaysOnlyChange={setWeekdaysOnly}
         />
       )}
-      <div style={{ fontSize: 10, padding: "4px 8px", color: "var(--text-tertiary)", fontFamily: "monospace", wordBreak: "break-all", background: "var(--bg-card)", borderBottom: "1px solid var(--divider)" }}>
-        DEBUG: {debugInfo}
-      </div>
       <EventList events={filteredEvents} loading={loading} />
     </div>
   );

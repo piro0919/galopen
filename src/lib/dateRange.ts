@@ -37,9 +37,14 @@ export function isWeekend(date: Date): boolean {
 }
 
 export function isHoliday(date: Date): boolean {
+  return holidayName(date) !== null;
+}
+
+export function holidayName(date: Date): string | null {
   const result = getHd().isHoliday(date);
-  if (!result) return false;
-  return Array.isArray(result) && result.some((h) => h.type === "public" || h.type === "bank");
+  if (!result || !Array.isArray(result)) return null;
+  const match = result.find((h) => h.type === "public" || h.type === "bank");
+  return match?.name ?? null;
 }
 
 export function isBusinessDay(date: Date): boolean {
@@ -83,11 +88,14 @@ export function computeVisibleDates(
     return visible;
   }
 
+  // Always show today, even when it's a weekend or holiday — otherwise
+  // the user has no clue why the list is empty.
+  visible.add(dateKey(todayMidnight));
+
   const eventDates = new Set(events.map(eventDateKey).filter(Boolean));
 
-  let businessCount = 0;
-  // Hard cap to prevent runaway loops; backend fetches ~7 days.
-  for (let offset = 0; offset < 14 && businessCount < range; offset++) {
+  let businessCount = isBusinessDay(todayMidnight) ? 1 : 0;
+  for (let offset = 1; offset < 14 && businessCount < range; offset++) {
     const d = new Date(todayMidnight);
     d.setDate(d.getDate() + offset);
     const key = dateKey(d);

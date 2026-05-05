@@ -1,7 +1,8 @@
-import { CalendarDays, CalendarOff, Loader2 } from "lucide-react";
+import { CalendarDays, Loader2 } from "lucide-react";
 import { useMemo } from "react";
 import { t } from "../i18n";
 import type { CalendarEvent } from "../types";
+import { holidayName, isWeekend } from "../lib/dateRange";
 import { EventCard } from "./EventCard";
 
 function getDateKey(event: CalendarEvent): string {
@@ -25,9 +26,12 @@ function formatDateLabel(dateKey: string): string {
     weekday: "short",
   });
 
-  if (dateKey === todayStr) return `${t.todaysSchedule} (${short})`;
-  if (dateKey === tomorrowStr) return `${t.tomorrow} (${short})`;
-  return short;
+  const holiday = holidayName(d);
+  const suffix = holiday ? ` · ${holiday}` : isWeekend(d) ? ` · ${t.weekend}` : "";
+
+  if (dateKey === todayStr) return `${t.todaysSchedule} (${short})${suffix}`;
+  if (dateKey === tomorrowStr) return `${t.tomorrow} (${short})${suffix}`;
+  return `${short}${suffix}`;
 }
 
 export function EventList({
@@ -37,8 +41,13 @@ export function EventList({
   events: CalendarEvent[];
   loading: boolean;
 }) {
+  const todayStrInit = new Date().toLocaleDateString("sv-SE");
+
   const grouped = useMemo(() => {
     const map = new Map<string, CalendarEvent[]>();
+    // Always reserve a slot for today so the header (and any holiday name) shows
+    // even when today has no events.
+    map.set(todayStrInit, []);
     for (const event of events) {
       const key = getDateKey(event);
       const arr = map.get(key);
@@ -46,7 +55,7 @@ export function EventList({
       else map.set(key, [event]);
     }
     return [...map.entries()];
-  }, [events]);
+  }, [events, todayStrInit]);
 
   if (loading) {
     return (
@@ -62,14 +71,6 @@ export function EventList({
     );
   }
 
-  if (events.length === 0) {
-    return (
-      <div style={styles.empty}>
-        <CalendarOff size={32} strokeWidth={1.5} color="var(--text-tertiary)" />
-        <span style={styles.emptyText}>{t.noEvents}</span>
-      </div>
-    );
-  }
 
   // Show countdown for: the very next event (always) + any within 4 hours, today only
   const now = new Date();
@@ -98,13 +99,17 @@ export function EventList({
             <h2 style={styles.title}>{formatDateLabel(dateKey)}</h2>
           </div>
           <div style={styles.list}>
-            {dayEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                isNext={nextIds.has(event.id)}
-              />
-            ))}
+            {dayEvents.length === 0 ? (
+              <span style={styles.emptyDay}>{t.noEvents}</span>
+            ) : (
+              dayEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  isNext={nextIds.has(event.id)}
+                />
+              ))
+            )}
           </div>
         </div>
       ))}
@@ -143,5 +148,10 @@ const styles: Record<string, React.CSSProperties> = {
   emptyText: {
     fontSize: 13,
     color: "var(--text-tertiary)",
+  },
+  emptyDay: {
+    fontSize: 12,
+    color: "var(--text-tertiary)",
+    padding: "4px 4px",
   },
 };
