@@ -204,8 +204,11 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
             } else {
                 None
             },
+            // For all-day events, format the date in the local timezone
+            // (NSDate stores UTC; midnight-local is 15:00 UTC the day before in JST,
+            // so formatting the UTC value would yield the wrong day).
             date: if is_all_day {
-                Some(start_chrono.format("%Y-%m-%d").to_string())
+                Some(start_chrono.with_timezone(&Local).format("%Y-%m-%d").to_string())
             } else {
                 None
             },
@@ -217,7 +220,7 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
                 None
             },
             date: if is_all_day {
-                Some(end_chrono.format("%Y-%m-%d").to_string())
+                Some(end_chrono.with_timezone(&Local).format("%Y-%m-%d").to_string())
             } else {
                 None
             },
