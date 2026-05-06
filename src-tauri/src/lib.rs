@@ -122,12 +122,11 @@ pub fn run() {
                                         .map(|m| m.scale_factor())
                                         .unwrap_or_else(|| window.scale_factor().unwrap_or(1.0));
 
-                                    // Get window size in logical pixels
-                                    let (width, _height) = if let Ok(size) = window.outer_size() {
-                                        (size.width as f64 / scale, size.height as f64 / scale)
-                                    } else {
-                                        (400.0, 480.0)
-                                    };
+                                    // Use the configured logical window size from tauri.conf.json.
+                                    // outer_size() returns physical pixels reflecting the previously
+                                    // displayed monitor's scale, which causes horizontal drift when
+                                    // toggling between monitors with different scale factors.
+                                    let width = 400.0_f64;
 
                                     // Position is in physical pixels, convert to logical for calculation
                                     let logical_x = position.x / scale;
