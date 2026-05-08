@@ -32,8 +32,8 @@
     "@tauri-apps/plugin-updater": "^2.10.1",
     "date-holidays": "^3.28.0",
     "lucide-react": "^0.577.0",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "react-router-dom": "^7.14.2"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.15.0"
   }
 }
