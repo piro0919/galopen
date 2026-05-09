@@ -10,7 +10,7 @@ name = "galopen_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.6.1", features = [] }
 
 [dependencies]
 tauri = { version = "2.11.1", features = ["tray-icon", "image-png"] }
