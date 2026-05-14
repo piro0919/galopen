@@ -17,6 +17,8 @@ interface Messages {
   settings: string;
   openBefore: string;
   minutesBefore: string;
+  notifyBefore: string;
+  notifyOff: string;
   startAtLogin: string;
   openSettings: string;
   quitApp: string;
@@ -65,6 +67,8 @@ const ja: Messages = {
   settings: "設定",
   openBefore: "会議URLを開くタイミング",
   minutesBefore: "分前",
+  notifyBefore: "通知を送るタイミング",
+  notifyOff: "オフ",
   startAtLogin: "ログイン時に自動起動",
   openSettings: "システム設定を開く",
   quitApp: "Galopen を終了",
@@ -122,6 +126,8 @@ const en: Messages = {
   settings: "Settings",
   openBefore: "Open meeting URL",
   minutesBefore: "min before",
+  notifyBefore: "Notify before meeting",
+  notifyOff: "Off",
   startAtLogin: "Start at login",
   openSettings: "Open System Settings",
   quitApp: "Quit Galopen",

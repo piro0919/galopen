@@ -9,6 +9,7 @@ import { getInstalledApps, type AppOption } from "../lib/tauri";
 import type { DisplayRange } from "../hooks/useDisplaySettings";
 
 const MINUTE_OPTIONS = [1, 2, 3, 5, 10];
+const NOTIFY_OPTIONS = [0, 1, 2, 3, 5, 10, 15, 30];
 const TRAY_COUNTDOWN_OPTIONS = [15, 30, 60, 90, 0]; // 0 = always
 const MEETING_SERVICES = [
   { key: "googleMeet", label: "Google Meet" },
@@ -33,6 +34,7 @@ export function Settings({
   onWeekdaysOnlyChange: (value: boolean) => void;
 }) {
   const [minutesBefore, setMinutesBefore] = useState(1);
+  const [notifyMinutes, setNotifyMinutes] = useState(5);
   const [trayCountdown, setTrayCountdown] = useState(30);
   const [quitHovered, setQuitHovered] = useState(false);
   const [version, setVersion] = useState("");
@@ -43,6 +45,8 @@ export function Settings({
     load("settings.json").then(async (store) => {
       const val = (await store.get("minutesBefore")) as number | undefined;
       if (val != null) setMinutesBefore(val);
+      const notif = (await store.get("notificationMinutesBefore")) as number | undefined;
+      if (notif != null) setNotifyMinutes(notif);
       const tray = (await store.get("trayCountdownMinutes")) as number | undefined;
       if (tray != null) setTrayCountdown(tray);
       const ow = (await store.get("openWith")) as Record<string, string> | undefined;
@@ -56,6 +60,13 @@ export function Settings({
     setMinutesBefore(value);
     const store = await load("settings.json");
     await store.set("minutesBefore", value);
+    await store.save();
+  };
+
+  const handleNotifyChange = async (value: number) => {
+    setNotifyMinutes(value);
+    const store = await load("settings.json");
+    await store.set("notificationMinutesBefore", value);
     await store.save();
   };
 
@@ -103,6 +114,23 @@ export function Settings({
           {MINUTE_OPTIONS.map((m) => (
             <option key={m} value={m}>
               {m}{t.minutesBefore}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <Bell size={14} strokeWidth={1.75} color="var(--text-secondary)" />
+          <span style={styles.label}>{t.notifyBefore}</span>
+        </div>
+        <select
+          value={notifyMinutes}
+          onChange={(e) => handleNotifyChange(Number(e.target.value))}
+          style={styles.select}
+        >
+          {NOTIFY_OPTIONS.map((m) => (
+            <option key={m} value={m}>
+              {m === 0 ? t.notifyOff : `${m}${t.minutesBefore}`}
             </option>
           ))}
         </select>

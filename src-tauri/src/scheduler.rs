@@ -10,6 +10,7 @@ use tauri_plugin_store::StoreExt;
 const POLL_INTERVAL_SECS: u64 = 5 * 60; // 5 minutes
 const CHECK_INTERVAL_SECS: u64 = 10; // Reduced from 30 for more responsive tray updates
 const DEFAULT_MINUTES_BEFORE: i64 = 1;
+const DEFAULT_NOTIFY_MINUTES_BEFORE: i64 = 5;
 const DEFAULT_TRAY_COUNTDOWN_MINUTES: i64 = 30;
 
 /// Check if the current system locale is Japanese
@@ -21,12 +22,14 @@ fn is_japanese_locale() -> bool {
 
 struct SchedulerState {
     opened_meetings: Mutex<HashSet<String>>,
+    notified_meetings: Mutex<HashSet<String>>,
     last_poll: Mutex<std::time::Instant>,
 }
 
 pub async fn run_scheduler(app: tauri::AppHandle) {
     let state = SchedulerState {
         opened_meetings: Mutex::new(HashSet::new()),
+        notified_meetings: Mutex::new(HashSet::new()),
         last_poll: Mutex::new(std::time::Instant::now() - Duration::from_secs(POLL_INTERVAL_SECS)),
     };
 
@@ -62,6 +65,13 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             .and_then(|v| v.as_i64())
             .unwrap_or(DEFAULT_MINUTES_BEFORE);
 
+        let notify_minutes_before = app
+            .store("settings.json")
+            .ok()
+            .and_then(|store| store.get("notificationMinutesBefore"))
+            .and_then(|v| v.as_i64())
+            .unwrap_or(DEFAULT_NOTIFY_MINUTES_BEFORE);
+
         // Check for upcoming meetings
         let events = calendar_state.events.lock().unwrap().clone();
         let now = Utc::now();
@@ -74,6 +84,32 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
 
             let minutes_until = (start_time - now).num_minutes();
             let seconds_until = (start_time - now).num_seconds();
+
+            // Reminder notification (independent of URL auto-open)
+            if notify_minutes_before > 0
+                && seconds_until <= (notify_minutes_before * 60)
+                && minutes_until >= -2
+            {
+                let already_notified = state
+                    .notified_meetings
+                    .lock()
+                    .unwrap()
+                    .contains(&event.id);
+
+                if !already_notified {
+                    let mins_until_display = ((seconds_until + 59) / 60).max(0);
+                    if let Err(e) =
+                        send_reminder_notification(&app, &event.summary, mins_until_display)
+                    {
+                        log::warn!("Failed to send reminder notification: {}", e);
+                    }
+                    state
+                        .notified_meetings
+                        .lock()
+                        .unwrap()
+                        .insert(event.id.clone());
+                }
+            }
 
             // Open if within minutes_before and not already started more than 2 minutes ago
             if seconds_until <= (minutes_before * 60) && minutes_until >= -2 {
@@ -91,9 +127,22 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                             url
                         );
 
-                        // Send notification
-                        if let Err(e) = send_notification(&app, &event.summary) {
-                            log::warn!("Failed to send notification: {}", e);
+                        // Send "opening now" notification only if we haven't already
+                        // sent a reminder for this meeting.
+                        let already_notified = state
+                            .notified_meetings
+                            .lock()
+                            .unwrap()
+                            .contains(&event.id);
+                        if !already_notified {
+                            if let Err(e) = send_notification(&app, &event.summary) {
+                                log::warn!("Failed to send notification: {}", e);
+                            }
+                            state
+                                .notified_meetings
+                                .lock()
+                                .unwrap()
+                                .insert(event.id.clone());
                         }
 
                         // Brief delay before opening
@@ -143,6 +192,11 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
         let event_ids: HashSet<String> = events_ref.iter().map(|e| e.id.clone()).collect();
         state
             .opened_meetings
+            .lock()
+            .unwrap()
+            .retain(|id| event_ids.contains(id));
+        state
+            .notified_meetings
             .lock()
             .unwrap()
             .retain(|id| event_ids.contains(id));
@@ -259,6 +313,28 @@ fn send_notification(app: &tauri::AppHandle, summary: &str) -> Result<(), Box<dy
         format!("開始: {}", summary)
     } else {
         format!("Opening: {}", summary)
+    };
+    app.notification().builder().title("Galopen").body(body).show()?;
+    Ok(())
+}
+
+fn send_reminder_notification(
+    app: &tauri::AppHandle,
+    summary: &str,
+    mins_until: i64,
+) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_notification::NotificationExt;
+    let is_ja = is_japanese_locale();
+    let body = if is_ja {
+        if mins_until <= 0 {
+            format!("まもなく開始: {}", summary)
+        } else {
+            format!("{}分後に開始: {}", mins_until, summary)
+        }
+    } else if mins_until <= 0 {
+        format!("Starting now: {}", summary)
+    } else {
+        format!("Starts in {} min: {}", mins_until, summary)
     };
     app.notification().builder().title("Galopen").body(body).show()?;
     Ok(())
