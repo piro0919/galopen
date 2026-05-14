@@ -220,10 +220,21 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
 }
 
 #[tauri::command]
-fn open_meeting_url(app: tauri::AppHandle, url: String, _account: Option<String>) {
-    // Note: Google Meet authuser handling is done by meeting_url::extract_meeting_url
-    // when the URL is extracted from the event, so we don't duplicate it here.
-    
+fn open_meeting_url(app: tauri::AppHandle, url: String, account: Option<String>) {
+    // For Google Meet URLs, append ?authuser=<email> so the meeting opens with
+    // the calendar's owning account rather than the browser's default account.
+    let url = if url.contains("meet.google.com") && !url.contains("authuser") {
+        match account.as_deref() {
+            Some(acc) if acc.contains('@') => {
+                let separator = if url.contains('?') { "&" } else { "?" };
+                format!("{}{}authuser={}", url, separator, acc)
+            }
+            _ => url,
+        }
+    } else {
+        url
+    };
+
     let open_with_app = meeting_url::detect_meeting_service(&url).and_then(|service| {
         app.store("settings.json")
             .ok()
