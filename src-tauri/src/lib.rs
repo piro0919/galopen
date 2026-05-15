@@ -52,6 +52,26 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
+            // Request notification permission so reminders/auto-open notifications
+            // are actually delivered on macOS. Without this the system silently
+            // drops them.
+            {
+                use tauri_plugin_notification::{NotificationExt, PermissionState};
+                match app.notification().permission_state() {
+                    Ok(PermissionState::Prompt | PermissionState::PromptWithRationale) => {
+                        if let Err(e) = app.notification().request_permission() {
+                            log::warn!("Failed to request notification permission: {}", e);
+                        }
+                    }
+                    Ok(state) => {
+                        log::info!("Notification permission state: {}", state);
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to read notification permission state: {}", e);
+                    }
+                }
+            }
+
             let is_ja = sys_locale::get_locale()
                 .map(|l| l.starts_with("ja"))
                 .unwrap_or(false);
