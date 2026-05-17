@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
-import { Bell, CalendarRange, Clock, Globe, LogOut, Power, Sun } from "lucide-react";
+import { Bell, CalendarRange, Clock, Coffee, Globe, LogOut, Power, Sun } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
 import { enable, disable } from "@tauri-apps/plugin-autostart";
@@ -256,6 +257,18 @@ export function Settings({
           {t.quitApp}
         </button>
       </div>
+      <div style={{ ...styles.row, marginTop: 12, justifyContent: "center" }}>
+        <button
+          type="button"
+          onClick={() => {
+            openUrl("https://buymeacoffee.com/piro0919").catch(() => {});
+          }}
+          style={styles.coffeeBtn}
+        >
+          <Coffee size={12} strokeWidth={1.75} />
+          {t.buyMeACoffee}
+        </button>
+      </div>
       {version && (
         <div style={styles.version}>v{version}</div>
       )}
@@ -349,6 +362,18 @@ const styles: Record<string, React.CSSProperties> = {
   quitBtnHover: {
     background: "var(--quit-hover-bg)",
     borderColor: "var(--quit-hover-border)",
+  },
+  coffeeBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    fontSize: 11,
+    padding: "4px 10px",
+    borderRadius: 12,
+    border: "1px solid var(--border-color)",
+    background: "transparent",
+    color: "var(--text-secondary)",
+    cursor: "pointer",
   },
   version: {
     marginTop: 12,

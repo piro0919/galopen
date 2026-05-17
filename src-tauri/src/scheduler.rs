@@ -43,9 +43,10 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             continue;
         }
 
-        // Poll calendar if enough time has passed
+        // Poll calendar if enough time has passed.
+        // Recover from Mutex poisoning so a panic in one branch doesn't kill the scheduler.
         let should_poll = {
-            let last = state.last_poll.lock().unwrap();
+            let last = state.last_poll.lock().unwrap_or_else(|e| e.into_inner());
             last.elapsed() >= Duration::from_secs(POLL_INTERVAL_SECS)
         };
 
@@ -54,7 +55,8 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                 log::error!("Calendar sync failed: {}", e);
                 continue;
             }
-            *state.last_poll.lock().unwrap() = std::time::Instant::now();
+            *state.last_poll.lock().unwrap_or_else(|e| e.into_inner()) =
+                std::time::Instant::now();
         }
 
         // Read minutes_before setting from store
@@ -73,7 +75,11 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             .unwrap_or(DEFAULT_NOTIFY_MINUTES_BEFORE);
 
         // Check for upcoming meetings
-        let events = calendar_state.events.lock().unwrap().clone();
+        let events = calendar_state
+            .events
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone();
         let now = Utc::now();
 
         for event in &events {
@@ -93,7 +99,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                 let already_notified = state
                     .notified_meetings
                     .lock()
-                    .unwrap()
+                    .unwrap_or_else(|e| e.into_inner())
                     .contains(&event.id);
 
                 if !already_notified {
@@ -106,7 +112,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                     state
                         .notified_meetings
                         .lock()
-                        .unwrap()
+                        .unwrap_or_else(|e| e.into_inner())
                         .insert(event.id.clone());
                 }
             }
@@ -116,7 +122,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                 let already_opened = state
                     .opened_meetings
                     .lock()
-                    .unwrap()
+                    .unwrap_or_else(|e| e.into_inner())
                     .contains(&event.id);
 
                 if !already_opened {
@@ -132,7 +138,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                         let already_notified = state
                             .notified_meetings
                             .lock()
-                            .unwrap()
+                            .unwrap_or_else(|e| e.into_inner())
                             .contains(&event.id);
                         if !already_notified {
                             if let Err(e) = send_notification(&app, &event.summary) {
@@ -141,7 +147,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                             state
                                 .notified_meetings
                                 .lock()
-                                .unwrap()
+                                .unwrap_or_else(|e| e.into_inner())
                                 .insert(event.id.clone());
                         }
 
@@ -180,7 +186,7 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
                         state
                             .opened_meetings
                             .lock()
-                            .unwrap()
+                            .unwrap_or_else(|e| e.into_inner())
                             .insert(event.id.clone());
                     }
                 }
@@ -188,17 +194,20 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
         }
 
         // Clean up old entries from opened_meetings (events no longer in today's list)
-        let events_ref = calendar_state.events.lock().unwrap();
+        let events_ref = calendar_state
+            .events
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let event_ids: HashSet<String> = events_ref.iter().map(|e| e.id.clone()).collect();
         state
             .opened_meetings
             .lock()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .retain(|id| event_ids.contains(id));
         state
             .notified_meetings
             .lock()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .retain(|id| event_ids.contains(id));
 
         // Update tray title with countdown to next event

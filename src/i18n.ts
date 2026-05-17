@@ -43,6 +43,7 @@ interface Messages {
   rangeUntilDayAfter: string;
   weekdaysOnly: string;
   weekend: string;
+  buyMeACoffee: string;
 }
 
 const ja: Messages = {
@@ -103,6 +104,7 @@ const ja: Messages = {
   rangeUntilDayAfter: "明後日まで",
   weekdaysOnly: "土日祝をスキップ",
   weekend: "週末",
+  buyMeACoffee: "開発者にコーヒーを ☕",
 };
 
 const en: Messages = {
@@ -162,6 +164,7 @@ const en: Messages = {
   rangeUntilDayAfter: "Through day after",
   weekdaysOnly: "Skip weekends & holidays",
   weekend: "Weekend",
+  buyMeACoffee: "Buy me a coffee ☕",
 };
 
 export const t: Messages = navigator.language.startsWith("ja") ? ja : en;

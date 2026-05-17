@@ -4,10 +4,30 @@
     "description": "カレンダーの予定を表示し、会議URLを自動で開くmacOSメニューバーアプリ。"
   },
   "Hero": {
+    "badge": "macOS メニューバー アプリ",
     "tagline": "もう会議に遅れない。",
-    "description": "Galopenはmacのメニューバーに常駐し、今日と明日の予定を表示。会議URLを開始時刻に合わせて自動で開きます。",
+    "description": "Galopen は macOS のメニューバーに常駐し、今日と明日の予定を表示。会議URLを開始時刻に合わせて自動で開きます。",
     "download": "macOS版をダウンロード",
-    "viewOnGithub": "GitHubで見る"
+    "viewOnGithub": "GitHubで見る",
+    "freeNote": "無料・オープンソース・サインアップ不要",
+    "mockup": {
+      "until": "次の会議まで",
+      "nowLabel": "次の会議",
+      "now": "デザインレビュー",
+      "nowTime": "10:30 – 11:00",
+      "later": "1on1 (太郎)",
+      "laterTime": "14:00 – 14:30",
+      "service": "Zoom"
+    }
+  },
+  "Why": {
+    "eyebrow": "なぜ作ったか",
+    "title": "「会議URLどこだっけ」の数秒を、毎日ゼロにする。",
+    "description": "通知が鳴る → カレンダーに切り替える → 予定を探す → URLをコピー → ブラウザに貼る。数秒の操作でも、Zoom / Meet / Teams が混在する1日では「すみません遅れました」につながりがち。Galopen はその一連の動作を丸ごと消します。"
+  },
+  "Services": {
+    "title": "対応サービス",
+    "description": "Mac に同期済みのカレンダーから、主要な会議URLを自動検出します。"
   },
   "Features": {
     "title": "機能",
@@ -17,7 +37,7 @@
     },
     "autoOpen": {
       "title": "会議URLの自動オープン",
-      "description": "Zoom、Google Meet、Teamsのリンクを会議開始前に自動で開きます。タイミングは設定で変更可能。"
+      "description": "Zoom、Google Meet、Teams のリンクを会議開始前に自動で開きます。タイミングは設定で変更可能。"
     },
     "countdown": {
       "title": "カウントダウンタイマー",
@@ -25,21 +45,22 @@
     },
     "calendars": {
       "title": "カレンダーフィルタリング",
-      "description": "個別のカレンダーの表示・非表示を切り替え。Macに同期されたすべてのカレンダーに対応。"
+      "description": "個別のカレンダーの表示・非表示を切り替え。Mac に同期されたすべてのカレンダーに対応。"
     },
     "privacy": {
       "title": "プライバシー重視",
-      "description": "すべてのデータはMac内に留まります。アカウント登録不要、サーバー通信なし、トラッキングなし。macOSネイティブのEventKitを使用。"
+      "description": "すべてのデータは Mac 内に留まります。アカウント登録不要、サーバー通信なし、トラッキングなし。macOS ネイティブの EventKit を使用。"
     },
     "lightweight": {
       "title": "軽量設計",
-      "description": "Tauriで構築し、リソース消費を最小限に。小さなダウンロードサイズ、高速起動、低メモリ使用量。"
+      "description": "Tauri で構築し、リソース消費を最小限に。小さなダウンロードサイズ、高速起動、低メモリ使用量。"
     }
   },
   "CTA": {
     "title": "数秒で始められます。",
-    "description": "Galopenをダウンロードし、カレンダーへのアクセスを許可するだけ。無料でオープンソース。",
-    "download": "Galopenをダウンロード"
+    "description": "Galopen をダウンロードし、カレンダーへのアクセスを許可するだけ。無料でオープンソース。",
+    "download": "Galopen をダウンロード",
+    "requirement": "macOS 14.0 以降"
   },
   "Footer": {
     "madeBy": "Made by",

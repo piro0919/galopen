@@ -77,9 +77,15 @@ pub fn run() {
                 .unwrap_or(false);
 
             // Build tray menu (right-click only)
+            let coffee_label = if is_ja { "開発者にコーヒーを ☕" } else { "Buy Me a Coffee ☕" };
+            let coffee = MenuItemBuilder::with_id("buy_me_a_coffee", coffee_label).build(app)?;
             let quit_label = if is_ja { "Galopen を終了" } else { "Quit Galopen" };
             let quit = MenuItemBuilder::with_id("quit", quit_label).build(app)?;
-            let menu = MenuBuilder::new(app).items(&[&quit]).build()?;
+            let menu = MenuBuilder::new(app)
+                .items(&[&coffee])
+                .separator()
+                .items(&[&quit])
+                .build()?;
 
             // Build tray icon with dedicated monochrome template icon
             let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-icon@2x.png"))?;
@@ -88,10 +94,14 @@ pub fn run() {
                 .icon_as_template(true)
                 .menu(&menu)
                 .show_menu_on_left_click(false)
-                .on_menu_event(move |app, event| {
-                    if event.id().as_ref() == "quit" {
-                        app.exit(0);
+                .on_menu_event(move |app, event| match event.id().as_ref() {
+                    "quit" => app.exit(0),
+                    "buy_me_a_coffee" => {
+                        if let Err(e) = open::that("https://buymeacoffee.com/piro0919") {
+                            log::warn!("Failed to open Buy Me a Coffee URL: {}", e);
+                        }
                     }
+                    _ => {}
                 })
                 .on_tray_icon_event(|tray, event| {
                     if let TrayIconEvent::Click {

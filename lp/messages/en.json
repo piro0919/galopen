@@ -4,10 +4,30 @@
     "description": "A macOS menu bar app that shows your calendar events and auto-opens meeting URLs."
   },
   "Hero": {
+    "badge": "macOS Menu Bar App",
     "tagline": "Never miss a meeting again.",
     "description": "Galopen lives in your macOS menu bar, showing upcoming calendar events and automatically opening meeting URLs right when you need them.",
     "download": "Download for macOS",
-    "viewOnGithub": "View on GitHub"
+    "viewOnGithub": "View on GitHub",
+    "freeNote": "Free · Open source · No sign-up",
+    "mockup": {
+      "until": "Next meeting in",
+      "nowLabel": "Up next",
+      "now": "Design review",
+      "nowTime": "10:30 – 11:00",
+      "later": "1:1 with Alex",
+      "laterTime": "14:00 – 14:30",
+      "service": "Zoom"
+    }
+  },
+  "Why": {
+    "eyebrow": "Why Galopen",
+    "title": "Erase the \"where's the meeting link\" shuffle.",
+    "description": "Notification fires → switch to calendar → find the event → copy the URL → paste into the browser. A few seconds, every time — and on days with back-to-back Zoom / Meet / Teams calls, those seconds turn into \"sorry I'm late.\" Galopen removes the whole routine."
+  },
+  "Services": {
+    "title": "Works with",
+    "description": "Detects meeting URLs from any calendar already synced to your Mac."
   },
   "Features": {
     "title": "Features",
@@ -39,7 +59,8 @@
   "CTA": {
     "title": "Get started in seconds.",
     "description": "Download Galopen, grant calendar access, and you're good to go. Free and open source.",
-    "download": "Download Galopen"
+    "download": "Download Galopen",
+    "requirement": "Requires macOS 14.0 or later"
   },
   "Footer": {
     "madeBy": "Made by",

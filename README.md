@@ -16,7 +16,13 @@
 
 ---
 
-No setup required - works with any calendar already configured in macOS (Google, iCloud, Outlook, etc.) via EventKit.
+## Why Galopen
+
+I kept missing the first minute of meetings because the routine was always the same: notification fires, switch to calendar, find the event, copy the URL, paste into the browser. A few seconds, every time — and on days with back-to-back Zoom / Meet / Teams calls, those seconds add up to "sorry I'm late."
+
+Galopen removes that step entirely. The meeting URL opens itself, in the right app, at the right time. You stop thinking about it.
+
+No setup required — works with any calendar already configured in macOS (Google, iCloud, Outlook, etc.) via EventKit. No OAuth, no account linking.
 
 ## Features
 

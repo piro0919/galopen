@@ -82,3 +82,127 @@ fn find_meeting_url(text: &str) -> Option<String> {
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::calendar::{CalendarEvent, EventDateTime};
+
+    fn make_event(
+        url: Option<&str>,
+        location: Option<&str>,
+        description: Option<&str>,
+    ) -> CalendarEvent {
+        CalendarEvent {
+            id: "test".to_string(),
+            summary: "Test".to_string(),
+            start: EventDateTime { date_time: None, date: None },
+            end: EventDateTime { date_time: None, date: None },
+            description: description.map(String::from),
+            location: location.map(String::from),
+            url: url.map(String::from),
+            is_all_day: false,
+            status: None,
+            calendar_id: None,
+            calendar_name: None,
+            calendar_account_name: None,
+            external_url: None,
+        }
+    }
+
+    #[test]
+    fn detects_known_services() {
+        assert_eq!(detect_meeting_service("https://meet.google.com/abc-defg-hij"), Some("googleMeet"));
+        assert_eq!(detect_meeting_service("https://us02web.zoom.us/j/123456789"), Some("zoom"));
+        assert_eq!(detect_meeting_service("https://teams.microsoft.com/l/meetup-join/xyz"), Some("teams"));
+        assert_eq!(detect_meeting_service("https://company.webex.com/meet/foo"), Some("webex"));
+        assert_eq!(detect_meeting_service("https://example.com/not-a-meeting"), None);
+    }
+
+    #[test]
+    fn url_field_takes_priority_over_location_and_description() {
+        let event = make_event(
+            Some("https://meet.google.com/aaa-bbbb-ccc"),
+            Some("https://us02web.zoom.us/j/111"),
+            Some("Join: https://teams.microsoft.com/l/meetup-join/xyz"),
+        );
+        let url = extract_meeting_url(&event).unwrap();
+        assert!(url.starts_with("https://meet.google.com/aaa-bbbb-ccc"));
+    }
+
+    #[test]
+    fn location_takes_priority_over_description() {
+        let event = make_event(
+            None,
+            Some("https://us02web.zoom.us/j/111"),
+            Some("Backup: https://teams.microsoft.com/l/meetup-join/xyz"),
+        );
+        assert_eq!(extract_meeting_url(&event).as_deref(), Some("https://us02web.zoom.us/j/111"));
+    }
+
+    #[test]
+    fn description_used_when_url_and_location_have_no_meeting_url() {
+        let event = make_event(
+            Some("https://example.com/agenda.pdf"),
+            Some("Conference Room A"),
+            Some("Join here: https://teams.microsoft.com/l/meetup-join/abc?tenantId=xyz"),
+        );
+        let url = extract_meeting_url(&event).unwrap();
+        assert!(url.contains("teams.microsoft.com/l/meetup-join/abc"));
+    }
+
+    #[test]
+    fn extracts_meeting_url_from_freeform_description() {
+        let event = make_event(
+            None,
+            None,
+            Some("Hi team, please join at https://us02web.zoom.us/j/9876543210?pwd=abc see you there"),
+        );
+        let url = extract_meeting_url(&event).unwrap();
+        assert!(url.starts_with("https://us02web.zoom.us/j/9876543210"));
+    }
+
+    #[test]
+    fn returns_none_when_no_meeting_url_present() {
+        let event = make_event(
+            Some("https://example.com/agenda.pdf"),
+            Some("Conference Room A"),
+            Some("No link this time"),
+        );
+        assert!(extract_meeting_url(&event).is_none());
+    }
+
+    #[test]
+    fn google_meet_appends_authuser_for_email_account() {
+        let mut event = make_event(Some("https://meet.google.com/abc-defg-hij"), None, None);
+        event.calendar_account_name = Some("user@example.com".to_string());
+        assert_eq!(
+            extract_meeting_url(&event).as_deref(),
+            Some("https://meet.google.com/abc-defg-hij?authuser=user@example.com")
+        );
+    }
+
+    #[test]
+    fn google_meet_does_not_duplicate_authuser() {
+        let mut event = make_event(
+            Some("https://meet.google.com/abc-defg-hij?authuser=user@example.com"),
+            None,
+            None,
+        );
+        event.calendar_account_name = Some("user@example.com".to_string());
+        assert_eq!(
+            extract_meeting_url(&event).as_deref(),
+            Some("https://meet.google.com/abc-defg-hij?authuser=user@example.com")
+        );
+    }
+
+    #[test]
+    fn google_meet_skips_authuser_for_non_email_account() {
+        let mut event = make_event(Some("https://meet.google.com/abc-defg-hij"), None, None);
+        event.calendar_account_name = Some("iCloud".to_string());
+        assert_eq!(
+            extract_meeting_url(&event).as_deref(),
+            Some("https://meet.google.com/abc-defg-hij")
+        );
+    }
+}
