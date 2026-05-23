@@ -30,8 +30,8 @@ importers:
         specifier: ^2.10.1
         version: 2.10.1
       date-holidays:
-        specifier: ^3.29.0
-        version: 3.29.0
+        specifier: ^3.30.1
+        version: 3.30.1
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.6)
@@ -1278,8 +1278,8 @@ packages:
     resolution: {integrity: sha512-h09ZEtM6u5cYM6m1bX+1Ny9f+nLO9KVZUKNPEnH7lhbXYTfqZogaGTnhONswGeIJFF91UImIftS3CdM9HLW5oQ==}
     engines: {node: '>=12.0.0'}
 
-  date-holidays@3.29.0:
-    resolution: {integrity: sha512-js8GcyMj9m82CNpgy4FddMqCrxSNj13mOr9GzCPg3Yj06B+QtmDuxYXk32FPTpR2hfH4khVPw58yWrF8ltOoGQ==}
+  date-holidays@3.30.1:
+    resolution: {integrity: sha512-AlXeT0ns1V/MxYiszL20Zz9vqTbb+EIpFHLoPhColQi6+Iw1tmzgwxTvSheK+Qs/YdNxH73Ce6d3YVSuvePnkQ==}
     engines: {node: '>=12.0.0'}
     hasBin: true
 
@@ -2596,7 +2596,7 @@ snapshots:
       jalaali-js: 1.2.8
       moment-timezone: 0.5.48
 
-  date-holidays@3.29.0:
+  date-holidays@3.30.1:
     dependencies:
       date-holidays-parser: 3.4.7
       js-yaml: 4.1.1
