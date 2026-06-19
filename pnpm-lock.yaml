@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@tauri-apps/api':
-        specifier: ^2.11.0
-        version: 2.11.0
+        specifier: ^2.11.1
+        version: 2.11.1
       '@tauri-apps/plugin-autostart':
         specifier: ^2.5.1
         version: 2.5.1
@@ -42,8 +42,8 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
       react-router-dom:
-        specifier: ^7.17.0
-        version: 7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^7.18.0
+        version: 7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@tauri-apps/cli':
         specifier: ^2.11.2
@@ -1089,8 +1089,8 @@ packages:
   '@tailwindcss/postcss@4.3.1':
     resolution: {integrity: sha512-dNJuNbdEJT/SWRuXTYP1WSamelsz3ztkUsdtWQPjrexysrTpaEPM40P/71knXiXLYEojqPOEGitVLLpPMS5T6A==}
 
-  '@tauri-apps/api@2.11.0':
-    resolution: {integrity: sha512-7CinYODhky9lmO23xHnUFv0Xt43fbtWMyxZcLcRBlFkcgXKuEirBvHpmtJ89YMhyeGcq20Wuc47Fa4XjyniywA==}
+  '@tauri-apps/api@2.11.1':
+    resolution: {integrity: sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA==}
 
   '@tauri-apps/cli-darwin-arm64@2.11.2':
     resolution: {integrity: sha512-+4UZzLt+eOAEQCwgd+TqKgyUJMrvx+BgdXLLaqJYmPqzP+nE6YZr/hY6CWLYGQb8jFn99jEkmC6uA3tNvamA1w==}
@@ -1597,15 +1597,15 @@ packages:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
     engines: {node: '>=0.10.0'}
 
-  react-router-dom@7.17.0:
-    resolution: {integrity: sha512-fyU2yjGups/hE6Xz0I5ZYbVL8Gx29eCjgpHaRaTaVU+OOAdfRX05KsvyRm0GO8YQwOkhpU3MurW1jyMUJn+zSw==}
+  react-router-dom@7.18.0:
+    resolution: {integrity: sha512-Fi0yY6kgtKae/Th2xibdWK0KSdYZ4B53Gyf6wRtomOKWgpNm7H7+DyfDhncdz9FKbpS+1jmDhg3F4WoGJ+yFOA==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
 
-  react-router@7.17.0:
-    resolution: {integrity: sha512-FDELK7rTMlCHO5+reyXsPlmfr7N1F91lPHsWYfMEGQm/KQ+F4JFM8jGoeQDmDvdTs93Fw9aSilH+uKRb4/jXvQ==}
+  react-router@7.18.0:
+    resolution: {integrity: sha512-pTTGt8J+ji1NOmYnjzT+bAJy/1zD+Jp4ziO6cL7T3ZLvXKtusO7BpFqlRXitqpcPVqllsIXFHRMt+2/k3Xn6HQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -2422,7 +2422,7 @@ snapshots:
       postcss: 8.5.15
       tailwindcss: 4.3.1
 
-  '@tauri-apps/api@2.11.0': {}
+  '@tauri-apps/api@2.11.1': {}
 
   '@tauri-apps/cli-darwin-arm64@2.11.2':
     optional: true
@@ -2473,27 +2473,27 @@ snapshots:
 
   '@tauri-apps/plugin-autostart@2.5.1':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-dialog@2.7.1':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-notification@2.3.3':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-opener@2.5.4':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-store@2.4.3':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-updater@2.10.1':
     dependencies:
-      '@tauri-apps/api': 2.11.0
+      '@tauri-apps/api': 2.11.1
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -2883,13 +2883,13 @@ snapshots:
 
   react-refresh@0.18.0: {}
 
-  react-router-dom@7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-router-dom@7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-      react-router: 7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-router: 7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
-  react-router@7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-router@7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       cookie: 1.1.1
       react: 19.2.7
