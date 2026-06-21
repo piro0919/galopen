@@ -24,7 +24,7 @@ open = "5.3.5"
 tokio = { version = "1.52.3", features = ["full"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 regex = "1.12.4"
-log = "0.4.32"
+log = "0.4.33"
 objc2 = "0.6.4"
 objc2-foundation = { version = "0.3.2", features = ["NSDate", "NSArray", "NSPredicate", "NSString", "NSError", "NSURL"] }
 objc2-event-kit = { version = "0.3.2", features = [
