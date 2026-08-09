@@ -30,10 +30,10 @@
     "@tauri-apps/plugin-opener": "^2.5.4",
     "@tauri-apps/plugin-store": "^2.4.4",
     "@tauri-apps/plugin-updater": "^2.10.1",
-    "date-holidays": "^3.34.0",
+    "date-holidays": "^3.34.1",
     "lucide-react": "^0.577.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.2"
   }
 }
