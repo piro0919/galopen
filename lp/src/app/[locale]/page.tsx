@@ -10,7 +10,7 @@ import {
   Video,
 } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 
 const GITHUB_URL = "https://github.com/piro0919/galopen";
@@ -28,8 +28,14 @@ const FEATURES = [
 
 const SERVICES = ["Zoom", "Google Meet", "Microsoft Teams", "Webex"];
 
-export default function Page(): ReactNode {
-  const t = useTranslations();
+type PageProps = { params: Promise<{ locale: string }> };
+
+export default async function Page({ params }: PageProps): Promise<ReactNode> {
+  const { locale } = await params;
+
+  setRequestLocale(locale);
+
+  const t = await getTranslations();
 
   return (
     <main className="min-h-dvh">
