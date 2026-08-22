@@ -12,6 +12,7 @@
   --color-paper-3: rgba(242, 242, 240, 0.38);
   --color-hairline: rgba(242, 242, 240, 0.14);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
 }
 

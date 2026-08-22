@@ -82,7 +82,7 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       <section className="mx-auto grid max-w-6xl gap-14 px-6 pt-10 pb-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12 lg:pt-16 lg:pb-24">
         <div className="min-w-0">
-          <h1 className="text-5xl leading-[1.08] font-bold tracking-tight text-paper-1 sm:text-6xl">
+          <h1 className="font-display text-5xl leading-[1.08] font-bold tracking-tight text-paper-1 sm:text-6xl">
             {t("Hero.tagline")}
           </h1>
           <p className="mt-7 max-w-md leading-relaxed text-paper-2">
@@ -126,11 +126,11 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       {/* Why */}
       <section className="border-y border-hairline bg-board-2 px-6 py-20">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <p className="font-mono text-xs tracking-wider text-amber">
             {t("Why.eyebrow")}
           </p>
-          <h2 className="mt-5 max-w-3xl text-3xl leading-snug font-bold tracking-tight text-paper-1 sm:text-4xl">
+          <h2 className="mt-5 max-w-3xl font-display text-3xl leading-snug font-bold tracking-tight text-paper-1 sm:text-4xl">
             {t("Why.title")}
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-paper-2">
@@ -141,7 +141,7 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       {/* Supported services */}
       <section className="px-6 py-14">
-        <div className="mx-auto flex max-w-5xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-mono text-xs tracking-wider text-amber">
               {t("Services.title")}
@@ -165,7 +165,7 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       {/* Features */}
       <section className="px-6 pb-20">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <h2 className="mb-8 font-mono text-xs tracking-wider text-amber">
             {t("Features.title")}
           </h2>
@@ -178,7 +178,7 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
                 <span className="tabular font-mono text-xs text-paper-3">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <dt className="flex items-center gap-2.5 text-base font-semibold text-paper-1">
+                <dt className="flex items-center gap-2.5 font-display text-base font-semibold text-paper-1">
                   <Icon className="text-amber" size={17} strokeWidth={1.75} />
                   {t(`Features.${key}.title`)}
                 </dt>
@@ -193,8 +193,8 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       {/* CTA */}
       <section className="bg-amber px-6 py-20 text-board">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-4xl leading-tight font-bold tracking-tight">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="font-display text-4xl leading-tight font-bold tracking-tight">
             {t("CTA.title")}
           </h2>
           <p className="mt-4 max-w-lg text-board/75">{t("CTA.description")}</p>
@@ -213,7 +213,7 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
       {/* Footer */}
       <footer className="px-6 py-8">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <span className="text-sm text-paper-3">
             {t("Footer.madeBy")}{" "}
             <a
