@@ -65,6 +65,43 @@
   "Footer": {
     "madeBy": "Made by",
     "openSource": "Open Source on GitHub",
-    "buyMeACoffee": "Buy Me a Coffee"
+    "buyMeACoffee": "Buy Me a Coffee",
+    "privacy": "Privacy"
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "updated": "Last updated: August 22, 2026",
+    "intro": "Galopen reads your calendar so it can open the right meeting at the right time. That's personal information, so here is where it goes: nowhere. There is no server behind this app, no analytics, and no account to sign into.",
+    "sections": [
+      {
+        "title": "It reads the calendar already on your Mac",
+        "body": "Galopen asks macOS for your events through the system calendar, which is why it prompts for calendar access on first launch. It does not connect to Google, Microsoft, or anyone else, and there is no login. Whatever calendars your Mac already has are the calendars it sees."
+      },
+      {
+        "title": "Your events stay on the Mac",
+        "body": "Event titles, times, and meeting links are used to show today's schedule and to open the right URL when a meeting starts. None of it is uploaded, logged to a server, or shared. There is nowhere for it to go."
+      },
+      {
+        "title": "Opening a meeting",
+        "body": "When Galopen opens a meeting, it hands the URL to your browser and stops there. What happens after that is between you and Zoom, Meet, Teams, or whoever is hosting — their own privacy policies apply, the same as if you had clicked the link yourself."
+      },
+      {
+        "title": "Update checks go to GitHub",
+        "body": "The app checks for new versions by fetching a small file from its GitHub Releases page. GitHub sees the request the way it sees any download, including your IP address. Nothing about your calendar is included."
+      },
+      {
+        "title": "No analytics, ever",
+        "body": "There is no crash reporting, no usage tracking, no unique identifier, and no third-party SDK of any kind in the app."
+      },
+      {
+        "title": "You can check all of this",
+        "body": "Galopen is open source under the MIT license, so none of the above has to be taken on trust. Read the source, or open an issue if something looks wrong."
+      },
+      {
+        "title": "Changes",
+        "body": "If a future version starts doing something new with your data, this page gets updated before that version ships."
+      }
+    ],
+    "back": "Back to Galopen"
   }
 }

@@ -6,12 +6,14 @@ import {
   Feather,
   Filter,
   Github,
+  Shield,
   ShieldCheck,
   Video,
 } from "lucide-react";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
+import { Link } from "@/i18n/navigation";
 
 const GITHUB_URL = "https://github.com/piro0919/galopen";
 const RELEASE_URL = "https://github.com/piro0919/galopen/releases/latest";
@@ -210,6 +212,13 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
               <Coffee size={14} strokeWidth={1.75} />
               {t("Footer.buyMeACoffee")}
             </a>
+            <Link
+              href="/privacy"
+              className="inline-flex items-center gap-1.5 text-sm text-apple-gray-3 transition-colors hover:text-apple-blue"
+            >
+              <Shield size={14} strokeWidth={1.75} />
+              {t("Footer.privacy")}
+            </Link>
           </div>
         </div>
       </footer>
