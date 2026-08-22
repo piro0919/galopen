@@ -1,58 +1,23 @@
 @import "tailwindcss";
 
-/* Theme tokens — defined as raw CSS variables so they can be overridden by
-   `prefers-color-scheme: dark` below. */
-:root {
-  --apple-blue: #007aff;
-  --apple-blue-dark: #0066d6;
-  --apple-gray-1: #1d1d1f;
-  --apple-gray-2: #6e6e73;
-  --apple-gray-3: #aeaeb2;
-  --apple-gray-4: #e5e5ea;
-  --apple-bg: #f5f5f7;
-  --apple-card: #ffffff;
-  --apple-border: rgba(0, 0, 0, 0.08);
-  --hero-from: #f7f9fc;
-  --hero-via: #eef3fb;
-  --hero-to: #f5f5f7;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --apple-blue: #0a84ff;
-    --apple-blue-dark: #0a6fd6;
-    --apple-gray-1: #f5f5f7;
-    --apple-gray-2: #aeaeb2;
-    --apple-gray-3: #8e8e93;
-    --apple-gray-4: #2c2c2e;
-    --apple-bg: #000000;
-    --apple-card: #1c1c1e;
-    --apple-border: rgba(255, 255, 255, 0.1);
-    --hero-from: #0b0f1a;
-    --hero-via: #0d1424;
-    --hero-to: #000000;
-  }
-}
-
-/* Tailwind v4 theme — `inline` so utilities embed the var() reference literally,
-   which then resolves against the :root overrides above for dark mode. */
+/* 発車標の見立て。黒の板に琥珀の文字で、次の会議までの残り時間を出す。
+   板が黒で成立しているので、明暗の切り替えは持たせていない */
 @theme inline {
-  --color-apple-blue: var(--apple-blue);
-  --color-apple-blue-dark: var(--apple-blue-dark);
-  --color-apple-gray-1: var(--apple-gray-1);
-  --color-apple-gray-2: var(--apple-gray-2);
-  --color-apple-gray-3: var(--apple-gray-3);
-  --color-apple-gray-4: var(--apple-gray-4);
-  --color-apple-bg: var(--apple-bg);
-  --color-apple-card: var(--apple-card);
-  --color-apple-border: var(--apple-border);
+  --color-board: #0b0b0c;
+  --color-board-2: #141416;
+  --color-amber: #ffb300;
+  --color-amber-dim: rgba(255, 179, 0, 0.16);
+  --color-paper-1: #f2f2f0;
+  --color-paper-2: rgba(242, 242, 240, 0.62);
+  --color-paper-3: rgba(242, 242, 240, 0.38);
+  --color-hairline: rgba(242, 242, 240, 0.14);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--color-apple-bg);
-  color: var(--color-apple-gray-1);
+  background: var(--color-board);
+  color: var(--color-paper-1);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -63,71 +28,28 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-apple-blue) 20%, transparent);
+  background: color-mix(in srgb, var(--color-amber) 35%, transparent);
 }
 
-/* Hero ambient background — soft radial accents */
-.hero-bg {
-  background:
-    radial-gradient(
-      60rem 30rem at 20% -10%,
-      color-mix(in srgb, var(--color-apple-blue) 14%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      50rem 30rem at 80% 0%,
-      color-mix(in srgb, #af52de 12%, transparent),
-      transparent 60%
-    ),
-    linear-gradient(180deg, var(--hero-from) 0%, var(--hero-via) 50%, var(--hero-to) 100%);
+/* 数字は桁を揃える。時刻が並ぶので、揃っていないと板に見えない */
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Mockup menu bar window — subtle elevation */
-.mockup-shell {
-  background: var(--color-apple-card);
-  border: 1px solid var(--color-apple-border);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 30px 60px -20px rgba(0, 0, 0, 0.25),
-    0 10px 30px -10px rgba(0, 0, 0, 0.15);
-}
-
-@media (prefers-color-scheme: dark) {
-  .mockup-shell {
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.04) inset,
-      0 30px 60px -20px rgba(0, 0, 0, 0.6),
-      0 10px 30px -10px rgba(0, 0, 0, 0.4);
-  }
-}
-
-/* Live dot pulse */
-@keyframes pulse-dot {
+/* 残り時間の点滅。発車標のそれ */
+@keyframes blink {
   0%,
-  100% {
+  60% {
     opacity: 1;
-    transform: scale(1);
   }
-  50% {
-    opacity: 0.55;
-    transform: scale(0.92);
+  80%,
+  100% {
+    opacity: 0.25;
   }
-}
-.dot-pulse {
-  animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* Soft fade-in on load */
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
+@media (prefers-reduced-motion: no-preference) {
+  .blink {
+    animation: blink 1.6s steps(1, end) infinite alternate;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.fade-up {
-  animation: fade-up 0.6s ease-out both;
 }

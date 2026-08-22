@@ -18,6 +18,22 @@
       "later": "1on1 (太郎)",
       "laterTime": "14:00 – 14:30",
       "service": "Zoom"
+    },
+    "board": {
+      "title": "きょうの予定",
+      "time": "時刻",
+      "event": "予定",
+      "service": "サービス",
+      "status": "状態",
+      "row3": "スプリント計画",
+      "row3Time": "16:00",
+      "row3Service": "Teams",
+      "row4": "全社定例",
+      "row4Time": "17:30",
+      "row4Service": "Meet",
+      "soon": "12分後",
+      "idle": "—",
+      "upNext": "次"
     }
   },
   "Why": {

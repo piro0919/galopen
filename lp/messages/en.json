@@ -18,6 +18,22 @@
       "later": "1:1 with Alex",
       "laterTime": "14:00 – 14:30",
       "service": "Zoom"
+    },
+    "board": {
+      "title": "Today",
+      "time": "TIME",
+      "event": "EVENT",
+      "service": "SERVICE",
+      "status": "STATUS",
+      "row3": "Sprint planning",
+      "row3Time": "16:00",
+      "row3Service": "Teams",
+      "row4": "All-hands",
+      "row4Time": "17:30",
+      "row4Service": "Meet",
+      "soon": "IN 12M",
+      "idle": "—",
+      "upNext": "NEXT"
     }
   },
   "Why": {
