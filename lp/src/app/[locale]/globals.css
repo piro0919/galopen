@@ -1,23 +1,29 @@
 @import "tailwindcss";
 
-/* 発車標の見立て。黒の板に琥珀の文字で、次の会議までの残り時間を出す。
-   板が黒で成立しているので、明暗の切り替えは持たせていない */
+/* 発車標の見立ては残したまま、色はアプリのアイコンから取る。
+   左上の空色から右下の紫へ落ちるグラデが顔なので、板は紫紺、
+   次の会議の行だけ空色で光らせる */
 @theme inline {
-  --color-board: #0b0b0c;
-  --color-board-2: #141416;
-  --color-amber: #ffb300;
-  --color-amber-dim: rgba(255, 179, 0, 0.16);
-  --color-paper-1: #f2f2f0;
-  --color-paper-2: rgba(242, 242, 240, 0.62);
-  --color-paper-3: rgba(242, 242, 240, 0.38);
-  --color-hairline: rgba(242, 242, 240, 0.14);
+  --color-board: #171043;
+  --color-board-2: #1d1553;
+  --color-amber: #47baf4;
+  --color-amber-dim: rgba(71, 186, 244, 0.16);
+  --color-paper-1: #f4f2fb;
+  --color-paper-2: rgba(244, 242, 251, 0.66);
+  --color-paper-3: rgba(244, 242, 251, 0.42);
+  --color-hairline: rgba(244, 242, 251, 0.16);
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--color-board);
+  /* アイコンと同じ向きの光。上端の空色から沈む */
+  background:
+    radial-gradient(90% 55% at 15% -10%, rgba(71, 186, 244, 0.22) 0%, transparent 60%),
+    radial-gradient(80% 60% at 90% 5%, rgba(155, 81, 235, 0.28) 0%, transparent 60%),
+    var(--color-board);
+  background-attachment: fixed;
   color: var(--color-paper-1);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
