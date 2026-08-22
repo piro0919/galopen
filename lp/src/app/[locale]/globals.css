@@ -56,6 +56,10 @@ body {
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 日本語を語のまとまりで折り返す。これが無いと見出しが「を、」や
+     「キ／ーボード」で割れる。対応していないブラウザでは従来どおり */
+  word-break: auto-phrase;
 }
 
 ::selection {
