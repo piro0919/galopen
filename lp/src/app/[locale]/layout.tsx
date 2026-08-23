@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
+import { languageAlternates, localePath, ogLocale } from "@/i18n/urls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,7 +42,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Metadata" });
 
-  const url = "https://galopen.kkweb.io";
+  const path = localePath(locale);
 
   return {
     description: t("description"),
@@ -49,7 +50,7 @@ export async function generateMetadata({
       default: t("title"),
       template: `%s | ${t("title")}`,
     },
-    metadataBase: new URL(url),
+    metadataBase: new URL("https://galopen.kkweb.io"),
     icons: {
       icon: [
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -63,8 +64,9 @@ export async function generateMetadata({
       siteName: "Galopen",
       title: t("title"),
       description: t("description"),
-      url,
-      locale,
+      url: path,
+      locale: ogLocale(locale),
+      alternateLocale: routing.locales.filter((one) => one !== locale).map(ogLocale),
     },
     twitter: {
       card: "summary_large_image",
@@ -72,11 +74,8 @@ export async function generateMetadata({
       description: t("description"),
     },
     alternates: {
-      canonical: url,
-      languages: {
-        en: `${url}/en`,
-        ja: `${url}/ja`,
-      },
+      canonical: path,
+      languages: languageAlternates(),
     },
   };
 }
@@ -100,7 +99,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning={true}>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} antialiased`}
+      >
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
         <Analytics />
       </body>
