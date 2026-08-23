@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
+import { GithubMark } from "@/components/GithubMark";
 import { Link } from "@/i18n/navigation";
 
 const GITHUB_URL = "https://github.com/piro0919/galopen";
