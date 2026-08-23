@@ -30,7 +30,7 @@ export default async function OgImage({
      同梱している。文言を変えたら assets/README.md の手順で作り直す */
   const [icon, font] = await Promise.all([
     readFile(join(process.cwd(), "public/icon.png")),
-    readFile(join(process.cwd(), "assets/MPLUS1-800-subset.ttf")),
+    readFile(join(process.cwd(), "assets/MPLUS1-500-subset.ttf")),
   ]);
   const iconSrc = `data:image/png;base64,${icon.toString("base64")}`;
 
@@ -42,9 +42,9 @@ export default async function OgImage({
         backgroundImage:
           "radial-gradient(60% 60% at 10% 0%, rgba(71,186,244,0.30) 0%, rgba(23,16,67,0) 60%), radial-gradient(60% 70% at 95% 10%, rgba(155,81,235,0.35) 0%, rgba(23,16,67,0) 60%)",
         display: "flex",
-        gap: 64,
+        gap: 56,
         height: "100%",
-        padding: "0 90px",
+        justifyContent: "center",
         width: "100%",
       }}
     >
@@ -52,8 +52,7 @@ export default async function OgImage({
         <div
           style={{
             color: PAPER,
-            fontSize: 112,
-            fontWeight: 700,
+            fontSize: 104,
             letterSpacing: -3,
           }}
         >
@@ -64,12 +63,12 @@ export default async function OgImage({
         </div>
       </div>
       {/* biome-ignore lint/performance/noImgElement: next/image is not available in ImageResponse */}
-      <img alt="" height={300} src={iconSrc} width={300} />
+      <img alt="" height={230} src={iconSrc} width={230} />
     </div>,
     {
       ...size,
       fonts: [
-        { data: font, name: "M PLUS 1", style: "normal", weight: 800 },
+        { data: font, name: "M PLUS 1", style: "normal", weight: 500 },
       ],
     },
   );
