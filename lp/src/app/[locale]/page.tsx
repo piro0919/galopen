@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -6,14 +5,13 @@ import {
   Download,
   Feather,
   Filter,
-  Github,
-  Shield,
   ShieldCheck,
   Video,
 } from "lucide-react";
+import Image from "next/image";
+import { GithubMark } from "@/components/GithubMark";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
 
 const GITHUB_URL = "https://github.com/piro0919/galopen";
 const RELEASE_URL = "https://github.com/piro0919/galopen/releases/latest";
@@ -39,121 +37,99 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
 
   const t = await getTranslations();
 
-  const rows = [
-    {
-      next: true,
-      service: t("Hero.mockup.service"),
-      status: t("Hero.board.soon"),
-      time: "10:30",
-      title: t("Hero.mockup.now"),
-    },
-    {
-      next: false,
-      service: "Zoom",
-      status: t("Hero.board.idle"),
-      time: "14:00",
-      title: t("Hero.mockup.later"),
-    },
-    {
-      next: false,
-      service: t("Hero.board.row3Service"),
-      status: t("Hero.board.idle"),
-      time: t("Hero.board.row3Time"),
-      title: t("Hero.board.row3"),
-    },
-    {
-      next: false,
-      service: t("Hero.board.row4Service"),
-      status: t("Hero.board.idle"),
-      time: t("Hero.board.row4Time"),
-      title: t("Hero.board.row4"),
-    },
-  ];
-
   return (
-    <main>
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <span className="font-mono text-sm tracking-[0.3em] text-paper-1 uppercase">
-          Galopen
-        </span>
-        <span className="font-mono text-xs text-paper-3">
-          {t("Hero.badge")}
-        </span>
-      </header>
-
-      <section className="mx-auto grid max-w-6xl gap-14 px-6 pt-10 pb-20 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12 lg:pt-16 lg:pb-24">
-        <div className="min-w-0">
-          <h1 className="font-display text-5xl leading-[1.08] font-bold tracking-tight text-paper-1 sm:text-6xl">
-            {t("Hero.tagline")}
-          </h1>
-          <p className="mt-7 max-w-md leading-relaxed text-paper-2">
-            {t("Hero.description")}
-          </p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <a
-              className="inline-flex items-center justify-center gap-2 bg-amber px-6 py-3.5 text-base font-semibold text-board transition-colors hover:bg-paper-1"
-              href={RELEASE_URL}
-            >
-              <Download size={18} strokeWidth={2} />
-              {t("Hero.download")}
-            </a>
-            <a
-              className="inline-flex items-center justify-center gap-2 border border-hairline px-6 py-3.5 text-base font-semibold text-paper-1 transition-colors hover:border-amber hover:text-amber"
-              href={GITHUB_URL}
-            >
-              <Github size={18} strokeWidth={2} />
-              {t("Hero.viewOnGithub")}
-            </a>
+    <main className="min-h-dvh">
+      {/* Hero */}
+      <section className="hero-bg relative overflow-hidden px-6 pt-16 pb-24">
+        <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-2 lg:items-center lg:gap-10">
+          {/* Hero copy */}
+          <div className="fade-up text-center lg:text-left">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-apple-border bg-apple-card/70 px-4 py-1.5 text-sm font-medium text-apple-blue backdrop-blur">
+              <Calendar size={16} strokeWidth={1.75} />
+              {t("Hero.badge")}
+            </div>
+            <div className="mb-6 flex items-center justify-center gap-4 lg:justify-start">
+              <Image
+                src="/icon.png"
+                alt="Galopen"
+                width={72}
+                height={72}
+                className="rounded-[18px] drop-shadow-xl"
+                priority
+              />
+              <h1 className="text-5xl font-bold tracking-tight text-apple-gray-1 sm:text-6xl">
+                Galopen
+              </h1>
+            </div>
+            <p className="mb-4 text-2xl font-semibold tracking-tight text-apple-gray-1 sm:text-3xl">
+              {t("Hero.tagline")}
+            </p>
+            <p className="mx-auto mb-10 max-w-lg text-base leading-relaxed text-apple-gray-2 lg:mx-0">
+              {t("Hero.description")}
+            </p>
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+              <a
+                href={RELEASE_URL}
+                className="inline-flex items-center gap-2 rounded-xl bg-apple-blue px-6 py-3 text-base font-semibold text-white shadow-lg shadow-apple-blue/25 transition-all hover:-translate-y-0.5 hover:bg-apple-blue-dark hover:shadow-xl hover:shadow-apple-blue/30"
+              >
+                <Download size={18} strokeWidth={2} />
+                {t("Hero.download")}
+              </a>
+              <a
+                href={GITHUB_URL}
+                className="inline-flex items-center gap-2 rounded-xl border border-apple-border bg-apple-card px-6 py-3 text-base font-semibold text-apple-gray-1 transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <GithubMark size={18} />
+                {t("Hero.viewOnGithub")}
+              </a>
+            </div>
+            <p className="mt-5 text-center text-xs text-apple-gray-3 lg:text-left">
+              {t("Hero.freeNote")}
+            </p>
           </div>
-          <p className="mt-6 font-mono text-xs text-paper-3">
-            {t("Hero.freeNote")}
-          </p>
-        </div>
 
-        <div className="min-w-0">
-          {/* 実際のウィンドウ。同種のアプリはどれも本物の一覧を見せている */}
-          <Image
-            alt={t("screens.window")}
-            className="w-full border border-hairline"
-            height={1180}
-            priority={true}
-            src="/screenshot-window.png"
-            width={1260}
-          />
+          {/* Menu bar mockup */}
+          <div className="fade-up" style={{ animationDelay: "120ms" }}>
+            <MenuBarMockup
+              until={t("Hero.mockup.until")}
+              nowLabel={t("Hero.mockup.nowLabel")}
+              now={t("Hero.mockup.now")}
+              nowTime={t("Hero.mockup.nowTime")}
+              later={t("Hero.mockup.later")}
+              laterTime={t("Hero.mockup.laterTime")}
+              service={t("Hero.mockup.service")}
+            />
+          </div>
         </div>
       </section>
 
       {/* Why */}
-      <section className="border-y border-hairline bg-board-2 px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-xs tracking-wider text-amber">
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="mb-3 text-sm font-semibold tracking-widest text-apple-blue uppercase">
             {t("Why.eyebrow")}
           </p>
-          <h2 className="mt-5 max-w-3xl font-display text-3xl leading-snug font-bold tracking-tight text-paper-1 sm:text-4xl">
+          <h2 className="mb-6 text-3xl font-bold tracking-tight text-apple-gray-1 sm:text-4xl">
             {t("Why.title")}
           </h2>
-          <p className="mt-6 max-w-2xl leading-relaxed text-paper-2">
-            {t("Why.description")}
-          </p>
+          <p className="text-lg leading-relaxed text-apple-gray-2">{t("Why.description")}</p>
         </div>
       </section>
 
       {/* Supported services */}
-      <section className="px-6 py-14">
-        <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-mono text-xs tracking-wider text-amber">
-              {t("Services.title")}
-            </h2>
-            <p className="mt-2 max-w-md text-sm text-paper-2">
-              {t("Services.description")}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
+      <section className="px-6 pb-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-3 text-sm font-semibold tracking-widest text-apple-gray-3 uppercase">
+            {t("Services.title")}
+          </h2>
+          <p className="mx-auto mb-8 max-w-xl text-sm text-apple-gray-2">
+            {t("Services.description")}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             {SERVICES.map((name) => (
               <span
-                className="border border-hairline px-4 py-2 font-mono text-xs text-paper-1"
                 key={name}
+                className="rounded-full border border-apple-border bg-apple-card px-4 py-2 text-sm font-medium text-apple-gray-1"
               >
                 {name}
               </span>
@@ -163,90 +139,151 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
       </section>
 
       {/* Features */}
-      <section className="px-6 pb-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-8 font-mono text-xs tracking-wider text-amber">
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-12 text-center text-sm font-semibold tracking-widest text-apple-gray-3 uppercase">
             {t("Features.title")}
           </h2>
-          <dl className="border-t border-hairline">
-            {FEATURES.map(({ key, icon: Icon }, i) => (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map(({ key, icon: Icon }) => (
               <div
-                className="grid gap-2 border-b border-hairline py-6 sm:grid-cols-[3rem_16rem_1fr] sm:items-baseline sm:gap-6"
                 key={key}
+                className="rounded-2xl border border-apple-border bg-apple-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
-                <span className="tabular font-mono text-xs text-paper-3">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <dt className="flex items-center gap-2.5 font-display text-base font-semibold text-paper-1">
-                  <Icon className="text-amber" size={17} strokeWidth={1.75} />
+                <div className="mb-4 inline-flex rounded-xl bg-apple-blue/10 p-2.5">
+                  <Icon size={20} strokeWidth={1.75} className="text-apple-blue" />
+                </div>
+                <h3 className="mb-2 text-base font-semibold text-apple-gray-1">
                   {t(`Features.${key}.title`)}
-                </dt>
-                <dd className="text-sm leading-relaxed text-paper-2">
+                </h3>
+                <p className="text-sm leading-relaxed text-apple-gray-2">
                   {t(`Features.${key}.description`)}
-                </dd>
+                </p>
               </div>
             ))}
-          </dl>
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-amber px-6 py-20 text-board">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-4xl leading-tight font-bold tracking-tight">
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-xl text-center">
+          <h2 className="mb-3 text-3xl font-bold tracking-tight text-apple-gray-1">
             {t("CTA.title")}
           </h2>
-          <p className="mt-4 max-w-lg text-board/75">{t("CTA.description")}</p>
+          <p className="mb-8 text-base text-apple-gray-2">{t("CTA.description")}</p>
           <a
-            className="mt-9 inline-flex items-center gap-2 bg-board px-6 py-3.5 text-base font-semibold text-amber transition-colors hover:bg-board-2"
             href={RELEASE_URL}
+            className="inline-flex items-center gap-2 rounded-xl bg-apple-blue px-6 py-3 text-base font-semibold text-white shadow-lg shadow-apple-blue/25 transition-all hover:-translate-y-0.5 hover:bg-apple-blue-dark hover:shadow-xl hover:shadow-apple-blue/30"
           >
             <Download size={18} strokeWidth={2} />
             {t("CTA.download")}
           </a>
-          <p className="mt-4 font-mono text-xs text-board/70">
-            {t("CTA.requirement")}
-          </p>
+          <p className="mt-4 text-xs text-apple-gray-3">{t("CTA.requirement")}</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
-          <span className="text-sm text-paper-3">
+      <footer className="border-t border-apple-border px-6 py-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <span className="text-sm text-apple-gray-3">
             {t("Footer.madeBy")}{" "}
             <a
-              className="text-paper-2 transition-colors hover:text-amber"
               href={GITHUB_URL}
+              className="font-medium text-apple-gray-2 transition-colors hover:text-apple-blue"
             >
               piro0919
             </a>
           </span>
           <div className="flex items-center gap-5">
             <a
-              className="inline-flex items-center gap-1.5 text-sm text-paper-3 transition-colors hover:text-amber"
               href={GITHUB_URL}
+              className="inline-flex items-center gap-1.5 text-sm text-apple-gray-3 transition-colors hover:text-apple-blue"
             >
-              <Github size={14} strokeWidth={1.75} />
+              <GithubMark size={14} />
               {t("Footer.openSource")}
             </a>
             <a
-              className="inline-flex items-center gap-1.5 text-sm text-paper-3 transition-colors hover:text-amber"
               href={COFFEE_URL}
+              className="inline-flex items-center gap-1.5 text-sm text-apple-gray-3 transition-colors hover:text-apple-blue"
             >
               <Coffee size={14} strokeWidth={1.75} />
               {t("Footer.buyMeACoffee")}
             </a>
-            <Link
-              className="inline-flex items-center gap-1.5 text-sm text-paper-3 transition-colors hover:text-amber"
-              href="/privacy"
-            >
-              <Shield size={14} strokeWidth={1.75} />
-              {t("Footer.privacy")}
-            </Link>
           </div>
         </div>
       </footer>
     </main>
+  );
+}
+
+type MockupProps = {
+  until: string;
+  nowLabel: string;
+  now: string;
+  nowTime: string;
+  later: string;
+  laterTime: string;
+  service: string;
+};
+
+function MenuBarMockup({
+  until,
+  nowLabel,
+  now,
+  nowTime,
+  later,
+  laterTime,
+  service,
+}: MockupProps): ReactNode {
+  return (
+    <div className="mx-auto w-full max-w-md">
+      {/* Fake macOS menu bar strip */}
+      <div className="mockup-shell flex items-center justify-end gap-3 rounded-t-2xl px-4 py-1.5 text-xs">
+        <span className="text-apple-gray-3">{until}</span>
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-apple-blue/10 px-2 py-0.5 font-semibold text-apple-blue">
+          <span className="size-1.5 rounded-full bg-apple-blue dot-pulse" />
+          12m
+        </span>
+      </div>
+
+      {/* Dropdown body */}
+      <div
+        className="mockup-shell -mt-px overflow-hidden rounded-b-2xl"
+        style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
+      >
+        {/* "Up next" highlighted */}
+        <div className="border-b border-apple-border px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[11px] font-semibold tracking-wider text-apple-blue uppercase">
+              {nowLabel}
+            </span>
+            <span className="text-xs text-apple-gray-3">{nowTime}</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span className="size-2 shrink-0 rounded-full bg-apple-blue" />
+            <span className="flex-1 truncate text-sm font-semibold text-apple-gray-1">{now}</span>
+            <span className="inline-flex items-center gap-1 rounded-md bg-apple-blue px-2 py-0.5 text-[11px] font-semibold text-white">
+              <Video size={11} strokeWidth={2.25} />
+              {service}
+            </span>
+          </div>
+        </div>
+
+        {/* Later */}
+        <div className="px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[11px] font-medium tracking-wider text-apple-gray-3 uppercase">
+              Later
+            </span>
+            <span className="text-xs text-apple-gray-3">{laterTime}</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span className="size-2 shrink-0 rounded-full bg-[#34c759]" />
+            <span className="flex-1 truncate text-sm text-apple-gray-2">{later}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
