@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -110,16 +111,14 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
         </div>
 
         <div className="min-w-0">
-          <DepartureBoard
-            columns={{
-              event: t("Hero.board.event"),
-              service: t("Hero.board.service"),
-              status: t("Hero.board.status"),
-              time: t("Hero.board.time"),
-            }}
-            rows={rows}
-            title={t("Hero.board.title")}
-            upNext={t("Hero.board.upNext")}
+          {/* 実際のウィンドウ。同種のアプリはどれも本物の一覧を見せている */}
+          <Image
+            alt={t("screens.window")}
+            className="w-full border border-hairline"
+            height={1180}
+            priority={true}
+            src="/screenshot-window.png"
+            width={1260}
           />
         </div>
       </section>
@@ -249,80 +248,5 @@ export default async function Page({ params }: PageProps): Promise<ReactNode> {
         </div>
       </footer>
     </main>
-  );
-}
-
-type Row = {
-  next: boolean;
-  service: string;
-  status: string;
-  time: string;
-  title: string;
-};
-
-function DepartureBoard({
-  columns,
-  rows,
-  title,
-  upNext,
-}: {
-  columns: { event: string; service: string; status: string; time: string };
-  rows: Row[];
-  title: string;
-  upNext: string;
-}): ReactNode {
-  return (
-    <div className="border border-hairline bg-board-2">
-      <div className="flex items-center justify-between border-b border-hairline px-5 py-3.5">
-        <span className="font-mono text-xs tracking-[0.25em] text-paper-2 uppercase">
-          {title}
-        </span>
-        <span className="size-2 rounded-full bg-amber blink" />
-      </div>
-      <div className="grid grid-cols-[4.5rem_1fr_5rem] gap-3 border-b border-hairline px-5 py-2.5 font-mono text-[10px] tracking-wider text-paper-3 uppercase sm:grid-cols-[4.5rem_1fr_7rem_5rem]">
-        <span>{columns.time}</span>
-        <span>{columns.event}</span>
-        <span className="hidden sm:block">{columns.service}</span>
-        <span className="text-right">{columns.status}</span>
-      </div>
-      {rows.map((row) => (
-        <div
-          className={`grid grid-cols-[4.5rem_1fr_5rem] items-center gap-3 border-b border-hairline px-5 py-4 last:border-b-0 sm:grid-cols-[4.5rem_1fr_7rem_5rem] ${
-            row.next ? "bg-amber-dim" : ""
-          }`}
-          key={row.time}
-        >
-          <span
-            className={`tabular font-mono text-lg ${
-              row.next ? "text-amber" : "text-paper-2"
-            }`}
-          >
-            {row.time}
-          </span>
-          <span
-            className={`truncate text-sm ${
-              row.next ? "font-semibold text-paper-1" : "text-paper-2"
-            }`}
-          >
-            {row.next ? (
-              <span className="mr-2 font-mono text-[10px] tracking-wider text-amber">
-                {upNext}
-              </span>
-            ) : null}
-            {row.title}
-          </span>
-          <span className="hidden font-mono text-xs text-paper-3 sm:block">
-            {row.service}
-          </span>
-          <span
-            className={`tabular text-right font-mono text-xs ${
-              row.next ? "text-amber blink" : "text-paper-3"
-            }`}
-          >
-            {row.status}
-          </span>
-        </div>
-      ))}
-    </div>
   );
 }
