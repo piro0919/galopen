@@ -50,6 +50,20 @@ enum CalendarCommand {
     RequestPermission(mpsc::Sender<Result<bool, String>>),
 }
 
+/// Lock a mutex, surviving poisoning.
+///
+/// A poisoned lock here means an earlier holder panicked while updating
+/// the value. Everything these mutexes guard is a cache of calendar data
+/// that the next sync overwrites wholesale, so recovering the inner
+/// value and carrying on is strictly better than panicking again and
+/// taking a menu-bar app down mid-meeting.
+fn lock_through_poison<'a, T>(m: &'a Mutex<T>, what: &str) -> std::sync::MutexGuard<'a, T> {
+    m.lock().unwrap_or_else(|poisoned| {
+        log::error!("{what} mutex was poisoned; continuing with the recovered value");
+        poisoned.into_inner()
+    })
+}
+
 pub struct CalendarState {
     pub events: Mutex<Vec<CalendarEvent>>,
     last_sync_date: Mutex<Option<NaiveDate>>,
@@ -262,7 +276,7 @@ fn request_permission_inner(store: &EKEventStore) -> Result<bool, String> {
 
     let completion = block2::RcBlock::new(
         move |granted: objc2::runtime::Bool, _error: *mut objc2_foundation::NSError| {
-            if let Some(sender) = tx_clone.lock().unwrap().take() {
+            if let Some(sender) = lock_through_poison(&tx_clone, "permission callback").take() {
                 let _ = sender.send(granted.as_bool());
             }
         },
@@ -378,8 +392,9 @@ pub fn sync_events(calendar_state: &CalendarState) -> Result<(), String> {
         .send(CalendarCommand::FetchToday(tx))
         .map_err(|e| e.to_string())?;
     let events = rx.recv().map_err(|e| e.to_string())??;
-    *calendar_state.events.lock().unwrap() = events;
-    *calendar_state.last_sync_date.lock().unwrap() = Some(Local::now().date_naive());
+    *lock_through_poison(&calendar_state.events, "events") = events;
+    *lock_through_poison(&calendar_state.last_sync_date, "last_sync_date") =
+        Some(Local::now().date_naive());
     Ok(())
 }
 
@@ -439,7 +454,7 @@ pub async fn get_calendars(
 pub async fn get_todays_events(
     calendar_state: tauri::State<'_, CalendarState>,
 ) -> Result<Vec<CalendarEvent>, String> {
-    Ok(calendar_state.events.lock().unwrap().clone())
+    Ok(lock_through_poison(&calendar_state.events, "events").clone())
 }
 
 #[tauri::command]
@@ -447,5 +462,5 @@ pub async fn force_sync(
     calendar_state: tauri::State<'_, CalendarState>,
 ) -> Result<Vec<CalendarEvent>, String> {
     sync_events(&calendar_state)?;
-    Ok(calendar_state.events.lock().unwrap().clone())
+    Ok(lock_through_poison(&calendar_state.events, "events").clone())
 }
