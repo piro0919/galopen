@@ -33,7 +33,7 @@ importers:
         specifier: ^3.36.0
         version: 3.36.0
       lucide-react:
-        specifier: ^1.39.0
+        specifier: ^1.40.0
         version: 1.40.0(react@19.2.8)
       react:
         specifier: ^19.2.8
@@ -70,7 +70,7 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(next@16.3.4(@babel/core@7.29.7)(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       lucide-react:
-        specifier: ^1.39.0
+        specifier: ^1.40.0
         version: 1.40.0(react@19.2.8)
       next:
         specifier: 16.3.4
