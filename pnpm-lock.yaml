@@ -30,11 +30,11 @@ importers:
         specifier: ^2.11.0
         version: 2.11.0
       date-holidays:
-        specifier: ^3.36.0
-        version: 3.36.0
+        specifier: ^3.36.1
+        version: 3.36.1
       lucide-react:
-        specifier: ^1.40.0
-        version: 1.40.0(react@19.2.8)
+        specifier: ^1.43.0
+        version: 1.44.0(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -70,8 +70,8 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(next@16.3.4(@babel/core@7.29.7)(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       lucide-react:
-        specifier: ^1.40.0
-        version: 1.40.0(react@19.2.8)
+        specifier: ^1.43.0
+        version: 1.44.0(react@19.2.8)
       next:
         specifier: 16.3.4
         version: 16.3.4(@babel/core@7.29.7)(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1262,8 +1262,8 @@ packages:
     resolution: {integrity: sha512-h09ZEtM6u5cYM6m1bX+1Ny9f+nLO9KVZUKNPEnH7lhbXYTfqZogaGTnhONswGeIJFF91UImIftS3CdM9HLW5oQ==}
     engines: {node: '>=12.0.0'}
 
-  date-holidays@3.36.0:
-    resolution: {integrity: sha512-uKcRwVgaIC5jEbm2Z4LQzXmTDulWcO+6kQie3GLoAiS1sYfpWmq1qrlrDHmo2BXGyIxT5o7IO0Z/jVQUZgJsCg==}
+  date-holidays@3.36.1:
+    resolution: {integrity: sha512-bdLF4I824OWcaEbYoTAWAn50DDfnAW0x4hn+66qRXi6YeFjF0NhbuXys/b0uMdGfcdCuetG3btbIEo/J1w2JFg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
 
@@ -1532,8 +1532,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@1.40.0:
-    resolution: {integrity: sha512-MaG+8WnOXkDWz9XeElj7TnQ890tTZUB0a36i03aRRCKGWE6e7jJpmdCvtxxuxcjjdqyN6m4sL6qlHVuSUDtYgg==}
+  lucide-react@1.44.0:
+    resolution: {integrity: sha512-2egNApH4hX4j/qdCgRublh88+9u3mEhz9iSlW5ckm4kaQEqZbXbMr0l5u5JZLy8nmWRx2dbHGQkEDYz6C9aCgw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -2630,7 +2630,7 @@ snapshots:
       jalaali-js: 1.2.8
       moment-timezone: 0.5.48
 
-  date-holidays@3.36.0:
+  date-holidays@3.36.1:
     dependencies:
       date-holidays-parser: 3.4.7
       js-yaml: 5.4.1
@@ -2858,7 +2858,7 @@ snapshots:
       yallist: 3.1.1
     optional: true
 
-  lucide-react@1.40.0(react@19.2.8):
+  lucide-react@1.44.0(react@19.2.8):
     dependencies:
       react: 19.2.8
 
