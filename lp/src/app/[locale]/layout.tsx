@@ -48,7 +48,7 @@ export async function generateMetadata({
     description: t("description"),
     title: {
       default: t("title"),
-      template: `%s | ${t("title")}`,
+      template: "%s | Galopen",
     },
     metadataBase: new URL("https://galopen.kkweb.io"),
     icons: {

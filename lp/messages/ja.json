@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Galopen",
-    "description": "カレンダーの予定を表示し、会議URLを自動で開くmacOSメニューバーアプリ。"
+    "title": "Galopen — 会議の URL を開始時刻に自動で開く Mac のメニューバーアプリ",
+    "description": "MeetingBar のように macOS のメニューバーに予定を並べ、会議が始まる時刻に Zoom・Meet・Teams の URL を自動で開きます。無料・オープンソースです。"
   },
   "Hero": {
     "badge": "macOS メニューバー アプリ",

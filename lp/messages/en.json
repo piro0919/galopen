@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Galopen",
-    "description": "A macOS menu bar app that shows your calendar events and auto-opens meeting URLs."
+    "title": "Galopen — a MeetingBar alternative that opens meeting links on time",
+    "description": "Like MeetingBar, Galopen keeps your upcoming events in the macOS menu bar — and opens the Zoom, Meet, or Teams link by itself when the meeting starts. Free and open source."
   },
   "Hero": {
     "badge": "macOS Menu Bar App",
