@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
-import { Bell, CalendarRange, Clock, Coffee, Globe, LogOut, Power, Sun } from "lucide-react";
+import { Bell, CalendarRange, Clock, Coffee, Globe, LogOut, Phone, Power, Sun } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { t } from "../i18n";
 import { load } from "@tauri-apps/plugin-store";
@@ -37,6 +37,7 @@ export function Settings({
   const [minutesBefore, setMinutesBefore] = useState(1);
   const [notifyMinutes, setNotifyMinutes] = useState(5);
   const [trayCountdown, setTrayCountdown] = useState(30);
+  const [whenInMeeting, setWhenInMeeting] = useState<"wait" | "open">("wait");
   const [quitHovered, setQuitHovered] = useState(false);
   const [version, setVersion] = useState("");
   const [installedApps, setInstalledApps] = useState<AppOption[]>([]);
@@ -50,6 +51,8 @@ export function Settings({
       if (notif != null) setNotifyMinutes(notif);
       const tray = (await store.get("trayCountdownMinutes")) as number | undefined;
       if (tray != null) setTrayCountdown(tray);
+      const wim = (await store.get("whenInMeeting")) as "wait" | "open" | undefined;
+      if (wim) setWhenInMeeting(wim);
       const ow = (await store.get("openWith")) as Record<string, string> | undefined;
       if (ow) setOpenWith(ow);
     });
@@ -75,6 +78,13 @@ export function Settings({
     setTrayCountdown(value);
     const store = await load("settings.json");
     await store.set("trayCountdownMinutes", value);
+    await store.save();
+  };
+
+  const handleWhenInMeeting = async (value: "wait" | "open") => {
+    setWhenInMeeting(value);
+    const store = await load("settings.json");
+    await store.set("whenInMeeting", value);
     await store.save();
   };
 
@@ -134,6 +144,20 @@ export function Settings({
               {m === 0 ? t.notifyOff : `${m}${t.minutesBefore}`}
             </option>
           ))}
+        </select>
+      </div>
+      <div style={{ ...styles.row, marginTop: 12 }}>
+        <div style={styles.labelRow}>
+          <Phone size={14} strokeWidth={1.75} color="var(--text-secondary)" />
+          <span style={styles.label}>{t.whenInMeeting}</span>
+        </div>
+        <select
+          value={whenInMeeting}
+          onChange={(e) => handleWhenInMeeting(e.target.value as "wait" | "open")}
+          style={styles.select}
+        >
+          <option value="wait">{t.whenInMeetingWait}</option>
+          <option value="open">{t.whenInMeetingOpen}</option>
         </select>
       </div>
       <div style={{ ...styles.row, marginTop: 12 }}>

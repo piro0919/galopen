@@ -10,7 +10,9 @@ use tauri_plugin_updater::UpdaterExt;
 
 mod calendar;
 mod meeting_url;
+mod mic;
 mod scheduler;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

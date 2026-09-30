@@ -34,6 +34,9 @@ interface Messages {
   trayCountdown: string;
   trayMinutes: string;
   trayAlways: string;
+  whenInMeeting: string;
+  whenInMeetingWait: string;
+  whenInMeetingOpen: string;
   openWithLabel: string;
   openWithDefault: string;
   nativeApp: string;
@@ -95,6 +98,9 @@ const ja: Messages = {
   trayCountdown: "トレイのカウントダウン",
   trayMinutes: "分前から",
   trayAlways: "常に表示",
+  whenInMeeting: "通話中に次の会議が来たら",
+  whenInMeetingWait: "終わってから開く",
+  whenInMeetingOpen: "すぐ開く",
   openWithLabel: "会議を開くアプリ",
   openWithDefault: "デフォルト",
   nativeApp: "アプリ",
@@ -155,6 +161,9 @@ const en: Messages = {
   trayCountdown: "Tray countdown",
   trayMinutes: "min before",
   trayAlways: "Always",
+  whenInMeeting: "Next meeting during a call",
+  whenInMeetingWait: "Open after it ends",
+  whenInMeetingOpen: "Open right away",
   openWithLabel: "Open meetings with",
   openWithDefault: "Default",
   nativeApp: "App",
