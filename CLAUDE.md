@@ -16,7 +16,7 @@ macOSカレンダー(EventKit)と連携し、会議の開始時刻になった�
 - `lib.rs` — メイン: Builder, tray, plugin登録, scheduler起動。Dockアイコン非表示(`ActivationPolicy::Accessory`)
 - `calendar.rs` — macOS EventKitクライアント。専用スレッド+チャネルでEKEventStoreを安全に管理。権限チェック/リクエスト、イベント取得
 - `meeting_url.rs` — イベントからの会議URL抽出(優先順: event URL > location > description)
-- `scheduler.rs` — 30秒ごとにイベント開始時刻チェック。N分前に通知+URL自動オープン。HashSetで重複防止
+- `scheduler.rs` — 30秒ごとにイベント開始時刻チェック。N分前に通知+URL自動オープン。HashSetで重複防止。カレンダーフィルターでオフにしたカレンダーと、自分が辞退した予定は対象外
 
 ### Frontend (`src/`)
 
@@ -25,7 +25,7 @@ macOSカレンダー(EventKit)と連携し、会議の開始時刻になった�
 - `pages/Home.tsx` — 今日の予定一覧 + カレンダーフィルター + 設定パネル
 - `components/EventCard.tsx` — 個別イベント表示(時刻、タイトル、会議サービスバッジ、カレンダー色ドット)
 - `components/EventList.tsx` — イベントリスト + 同期ボタン
-- `components/CalendarFilter.tsx` — カレンダー表示/非表示フィルター(ソース別グループ)
+- `components/CalendarFilter.tsx` — カレンダー表示/非表示フィルター(ソース別グループ)。選択は `settings.json` の `enabledCalendars` に保存し、schedulerも同じ値を読む(未設定なら全カレンダー)
 - `components/Settings.tsx` — 会議URL自動オープンのタイミング設定(tauri-plugin-store永続化)
 - `i18n.ts` — 英語/日本語辞書 + `navigator.language`ロケール判定
 - `lib/tauri.ts` — Tauri invokeラッパー

@@ -107,6 +107,7 @@ mod tests {
             calendar_name: None,
             calendar_account_name: None,
             external_url: None,
+            declined: false,
         }
     }
 

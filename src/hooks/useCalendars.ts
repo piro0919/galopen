@@ -1,8 +1,37 @@
 import { useCallback, useEffect, useState } from "react";
+import { load } from "@tauri-apps/plugin-store";
 import { getCalendars } from "../lib/tauri";
 import type { CalendarInfo } from "../types";
 
-const STORAGE_KEY = "galopen-enabled-calendars";
+// The scheduler reads the selection from settings.json, so auto-open follows the filter.
+const STORE_KEY = "enabledCalendars";
+// Where the selection lived before; migrated into the store once.
+const LEGACY_STORAGE_KEY = "galopen-enabled-calendars";
+
+async function saveSelection(ids: string[]) {
+  const store = await load("settings.json");
+  await store.set(STORE_KEY, ids);
+  await store.save();
+}
+
+async function loadSelection(): Promise<string[] | null> {
+  const store = await load("settings.json");
+  const saved = await store.get<string[]>(STORE_KEY);
+  if (Array.isArray(saved)) return saved;
+
+  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (!legacy) return null;
+  try {
+    const ids: unknown = JSON.parse(legacy);
+    if (!Array.isArray(ids)) return null;
+    const valid = ids.filter((id): id is string => typeof id === "string");
+    await saveSelection(valid);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    return valid;
+  } catch {
+    return null;
+  }
+}
 
 export function useCalendars() {
   const [calendars, setCalendars] = useState<CalendarInfo[]>([]);
@@ -10,26 +39,21 @@ export function useCalendars() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getCalendars().then((cals) => {
-      setCalendars(cals);
+    Promise.all([getCalendars(), loadSelection().catch(() => null)]).then(
+      ([cals, saved]) => {
+        setCalendars(cals);
 
-      // Load saved selection from localStorage
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const ids: string[] = JSON.parse(saved);
+        if (saved) {
           // Only keep IDs that still exist
-          const valid = new Set(ids.filter((id) => cals.some((c) => c.id === id)));
+          const valid = new Set(saved.filter((id) => cals.some((c) => c.id === id)));
           setEnabledIds(valid.size > 0 ? valid : new Set(cals.map((c) => c.id)));
-        } catch {
+        } else {
+          // Default: all enabled
           setEnabledIds(new Set(cals.map((c) => c.id)));
         }
-      } else {
-        // Default: all enabled
-        setEnabledIds(new Set(cals.map((c) => c.id)));
-      }
-      setLoaded(true);
-    });
+        setLoaded(true);
+      },
+    );
   }, []);
 
   const toggleCalendar = useCallback(
@@ -42,7 +66,9 @@ export function useCalendars() {
         } else {
           next.add(id);
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
+        saveSelection([...next]).catch((e) =>
+          console.error("Failed to save calendar selection:", e),
+        );
         return next;
       });
     },

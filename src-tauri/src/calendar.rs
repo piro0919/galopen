@@ -2,6 +2,7 @@ use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 use objc2::rc::Retained;
 use objc2_event_kit::{
     EKAuthorizationStatus, EKCalendar, EKEntityType, EKEvent, EKEventStatus, EKEventStore,
+    EKParticipantStatus,
 };
 use objc2_foundation::{NSArray, NSDate, NSString, NSURL};
 use serde::{Deserialize, Serialize};
@@ -25,6 +26,9 @@ pub struct CalendarEvent {
     pub calendar_name: Option<String>,
     pub calendar_account_name: Option<String>,
     pub external_url: Option<String>,
+    /// The current user is an attendee and has declined the invitation.
+    #[serde(default)]
+    pub declined: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -200,6 +204,13 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
         .and_then(|c| unsafe { c.source() })
         .map(|s| unsafe { s.title() }.to_string());
 
+    let declined = current_user_declined(
+        unsafe { event.attendees() }
+            .into_iter()
+            .flat_map(|attendees| attendees.to_vec())
+            .map(|p| unsafe { (p.isCurrentUser(), p.participantStatus()) }),
+    );
+
     // calendarItemExternalURI - use objc2 exception handling to avoid crash
     let external_url: Option<String> = unsafe {
         objc2::exception::catch(std::panic::AssertUnwindSafe(|| {
@@ -248,7 +259,18 @@ fn ekevent_to_calendar_event(event: &EKEvent) -> Option<CalendarEvent> {
         calendar_name,
         calendar_account_name,
         external_url,
+        declined,
     })
+}
+
+/// Whether the attendee marked as the current user has declined.
+/// Takes `(is_current_user, status)` per attendee so it can be tested without EventKit.
+fn current_user_declined(
+    attendees: impl IntoIterator<Item = (bool, EKParticipantStatus)>,
+) -> bool {
+    attendees
+        .into_iter()
+        .any(|(is_me, status)| is_me && status == EKParticipantStatus::Declined)
 }
 
 #[allow(deprecated)]
@@ -398,6 +420,17 @@ pub fn sync_events(calendar_state: &CalendarState) -> Result<(), String> {
     Ok(())
 }
 
+/// Identifiers of the calendars that currently exist.
+pub fn calendar_ids(calendar_state: &CalendarState) -> Result<Vec<String>, String> {
+    let (tx, rx) = mpsc::channel();
+    calendar_state
+        .command_tx
+        .send(CalendarCommand::FetchCalendars(tx))
+        .map_err(|e| e.to_string())?;
+    let calendars = rx.recv().map_err(|e| e.to_string())??;
+    Ok(calendars.into_iter().map(|c| c.id).collect())
+}
+
 pub fn has_permission(calendar_state: &CalendarState) -> bool {
     let (tx, rx) = mpsc::channel();
     if calendar_state
@@ -463,4 +496,20 @@ pub async fn force_sync(
 ) -> Result<Vec<CalendarEvent>, String> {
     sync_events(&calendar_state)?;
     Ok(lock_through_poison(&calendar_state.events, "events").clone())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn declined_only_when_the_current_user_declined() {
+        use EKParticipantStatus as S;
+        assert!(current_user_declined([(false, S::Accepted), (true, S::Declined)]));
+        assert!(!current_user_declined([(true, S::Accepted), (false, S::Declined)]));
+        assert!(!current_user_declined([(true, S::Tentative)]));
+        assert!(!current_user_declined([(true, S::Pending)]));
+        // No attendees: an event on the user's own calendar
+        assert!(!current_user_declined([]));
+    }
 }

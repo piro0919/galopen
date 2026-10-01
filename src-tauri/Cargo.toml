@@ -49,6 +49,7 @@ objc2-event-kit = { version = "0.3.2", features = [
     "EKCalendarItem",
     "EKEvent",
     "EKEventStore",
+    "EKParticipant",
 ] }
 block2 = "0.6.2"
 sys-locale = "0.3.2"

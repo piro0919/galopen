@@ -1,4 +1,4 @@
-use crate::calendar::{has_permission, sync_events, CalendarState};
+use crate::calendar::{calendar_ids, has_permission, sync_events, CalendarEvent, CalendarState};
 use crate::meeting_url::{detect_meeting_service, extract_meeting_url};
 use crate::mic;
 use chrono::{DateTime, Utc};
@@ -37,6 +37,10 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
         last_poll: Mutex::new(std::time::Instant::now() - Duration::from_secs(POLL_INTERVAL_SECS)),
     };
 
+    // Calendars that exist, refreshed with each poll; used to drop stale ids
+    // from the saved selection the same way the calendar filter UI does.
+    let mut known_calendar_ids: Option<Vec<String>> = None;
+
     loop {
         tokio::time::sleep(Duration::from_secs(CHECK_INTERVAL_SECS)).await;
 
@@ -61,6 +65,10 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             }
             *state.last_poll.lock().unwrap_or_else(|e| e.into_inner()) =
                 std::time::Instant::now();
+            match calendar_ids(&calendar_state) {
+                Ok(ids) => known_calendar_ids = Some(ids),
+                Err(e) => log::warn!("Failed to list calendars: {}", e),
+            }
         }
 
         // Read minutes_before setting from store
@@ -87,12 +95,25 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
             .and_then(|v| v.as_str().map(|s| s != "open"))
             .unwrap_or(true);
 
-        // Check for upcoming meetings
-        let events = calendar_state
+        // Calendars the user turned on in the calendar filter (None = all)
+        let saved_calendars = app
+            .store("settings.json")
+            .ok()
+            .and_then(|store| store.get(ENABLED_CALENDARS_KEY))
+            .and_then(|v| serde_json::from_value::<Vec<String>>(v).ok());
+        let enabled_calendars =
+            enabled_calendar_set(saved_calendars, known_calendar_ids.as_deref());
+
+        // Check for upcoming meetings. Everything below (notifications,
+        // auto-open, the tray countdown) only sees meetings the user cares about.
+        let events: Vec<CalendarEvent> = calendar_state
             .events
             .lock()
             .unwrap_or_else(|e| e.into_inner())
-            .clone();
+            .iter()
+            .filter(|e| in_scope(e, enabled_calendars.as_ref()))
+            .cloned()
+            .collect();
         let now = Utc::now();
 
         for event in &events {
@@ -301,6 +322,34 @@ pub async fn run_scheduler(app: tauri::AppHandle) {
 
         // Update tray title with countdown to next event
         update_tray_title(&app, &events);
+    }
+}
+
+/// Store key the calendar filter writes its selection to.
+const ENABLED_CALENDARS_KEY: &str = "enabledCalendars";
+
+/// The calendars to act on, or `None` for all of them.
+///
+/// Matches the calendar filter UI: ids of calendars that no longer exist are
+/// ignored, and if nothing valid is left the selection falls back to all.
+/// Users who never touched the filter have nothing saved, so nothing changes for them.
+fn enabled_calendar_set(saved: Option<Vec<String>>, known: Option<&[String]>) -> Option<HashSet<String>> {
+    let saved: HashSet<String> = saved?
+        .into_iter()
+        .filter(|id| known.is_none_or(|known| known.contains(id)))
+        .collect();
+    (!saved.is_empty()).then_some(saved)
+}
+
+/// Whether the scheduler should act on `event` at all.
+/// Skips meetings the user declined and calendars turned off in the filter.
+fn in_scope(event: &CalendarEvent, enabled_calendars: Option<&HashSet<String>>) -> bool {
+    if event.declined {
+        return false;
+    }
+    match (enabled_calendars, &event.calendar_id) {
+        (Some(enabled), Some(id)) => enabled.contains(id),
+        _ => true,
     }
 }
 
@@ -535,6 +584,7 @@ mod tests {
             calendar_name: None,
             calendar_account_name: None,
             external_url: None,
+            declined: false,
         }
     }
 
@@ -606,5 +656,53 @@ mod tests {
         let call = event("call", at(14, 0), at(15, 0), MEET);
         assert!(!other_meeting_in_progress(&[focus, next.clone()], &next, at(14, 59)));
         assert!(other_meeting_in_progress(&[call, next.clone()], &next, at(14, 59)));
+    }
+
+    fn ids(items: &[&str]) -> Vec<String> {
+        items.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn no_saved_selection_means_every_calendar() {
+        assert_eq!(enabled_calendar_set(None, Some(&ids(&["work", "shared"]))), None);
+        let any = event("a", at(15, 0), at(16, 0), MEET);
+        assert!(in_scope(&any, None));
+    }
+
+    #[test]
+    fn meetings_on_turned_off_calendars_are_out_of_scope() {
+        let enabled = enabled_calendar_set(Some(ids(&["work"])), Some(&ids(&["work", "shared"])));
+        let mut mine = event("mine", at(15, 0), at(16, 0), MEET);
+        mine.calendar_id = Some("work".into());
+        let mut colleague = event("colleague", at(15, 0), at(16, 0), MEET);
+        colleague.calendar_id = Some("shared".into());
+        assert!(in_scope(&mine, enabled.as_ref()));
+        assert!(!in_scope(&colleague, enabled.as_ref()));
+    }
+
+    #[test]
+    fn stale_ids_fall_back_like_the_filter_ui() {
+        // Some ids gone: keep the rest
+        assert_eq!(
+            enabled_calendar_set(Some(ids(&["work", "gone"])), Some(&ids(&["work", "shared"]))),
+            Some(HashSet::from(["work".to_string()]))
+        );
+        // All gone: back to every calendar
+        assert_eq!(enabled_calendar_set(Some(ids(&["gone"])), Some(&ids(&["work"]))), None);
+        // Calendar list not available yet: trust the saved ids
+        assert_eq!(
+            enabled_calendar_set(Some(ids(&["work"])), None),
+            Some(HashSet::from(["work".to_string()]))
+        );
+    }
+
+    #[test]
+    fn declined_meetings_are_out_of_scope() {
+        let mut declined = event("declined", at(15, 0), at(16, 0), MEET);
+        declined.declined = true;
+        assert!(!in_scope(&declined, None));
+        declined.calendar_id = Some("work".into());
+        let enabled = Some(HashSet::from(["work".to_string()]));
+        assert!(!in_scope(&declined, enabled.as_ref()));
     }
 }
