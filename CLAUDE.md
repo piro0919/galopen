@@ -51,10 +51,15 @@ pnpm tauri dev      # 開発サーバー起動
 
 ```bash
 TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/galopen.key)" \
-TAURI_SIGNING_PRIVATE_KEY_PASSWORD="tauri" \
+TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(security find-generic-password -a "$USER" -s galopen-tauri-key -w)" \
 APPLE_SIGNING_IDENTITY="-" \
 pnpm tauri build
 ```
+
+署名鍵のパスワードはこのファイルにもリポジトリにも書かない。キーチェーンに登録しておき、
+上のようにビルドのたびに読み出す。未登録なら一度だけ
+`security add-generic-password -a "$USER" -s galopen-tauri-key -w` で登録する
+（パスワードの入力を求められる）。
 
 ### APPLE_SIGNING_IDENTITY="-" を忘れると何が起きるか
 
