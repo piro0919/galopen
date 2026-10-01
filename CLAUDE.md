@@ -15,7 +15,7 @@ macOSカレンダー(EventKit)と連携し、会議の開始時刻になった�
 
 - `lib.rs` — メイン: Builder, tray, plugin登録, scheduler起動。Dockアイコン非表示(`ActivationPolicy::Accessory`)
 - `calendar.rs` — macOS EventKitクライアント。専用スレッド+チャネルでEKEventStoreを安全に管理。権限チェック/リクエスト、イベント取得
-- `meeting_url.rs` — イベントからの会議URL抽出(優先順: event URL > location > description)
+- `meeting_url.rs` — イベントからの会議URL抽出(優先順: event URL > location > description)。招待は誰でも送れるので、`url` crateでパースし、httpsかつホストがサービスのドメインそのもの(Zoom/Webexはその正規のサブドメインも可)のときだけ会議URLとみなす。部分一致に戻さない
 - `scheduler.rs` — 30秒ごとにイベント開始時刻チェック。N分前に通知+URL自動オープン。HashSetで重複防止。カレンダーフィルターでオフにしたカレンダーと、自分が辞退した予定は対象外
 
 ### Frontend (`src/`)

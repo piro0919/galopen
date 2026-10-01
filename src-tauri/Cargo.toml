@@ -24,6 +24,7 @@ open = "5.4.4"
 tokio = { version = "1.53.1", features = ["full"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 regex = "1.13.1"
+url = "2.5.8"
 log = "0.4.34"
 objc2 = "0.6.4"
 objc2-foundation = { version = "0.3.2", features = ["NSDate", "NSArray", "NSPredicate", "NSString", "NSError", "NSURL", "NSAttributedString", "NSRange", "NSValue"] }

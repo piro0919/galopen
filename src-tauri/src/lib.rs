@@ -255,7 +255,9 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
 fn open_meeting_url(app: tauri::AppHandle, url: String, account: Option<String>) {
     // For Google Meet URLs, append ?authuser=<email> so the meeting opens with
     // the calendar's owning account rather than the browser's default account.
-    let url = if url.contains("meet.google.com") && !url.contains("authuser") {
+    // Only for the real Meet host: a lookalike link must not receive the address.
+    let is_meet = meeting_url::detect_meeting_service(&url) == Some("googleMeet");
+    let url = if is_meet && !url.contains("authuser") {
         match account.as_deref() {
             Some(acc) if acc.contains('@') => {
                 let separator = if url.contains('?') { "&" } else { "?" };
