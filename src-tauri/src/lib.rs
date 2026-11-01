@@ -7,12 +7,33 @@ use tauri::{
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_store::StoreExt;
 use tauri_plugin_updater::UpdaterExt;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, MutexGuard};
+use std::time::{Duration, Instant};
 
 mod calendar;
 mod meeting_url;
 mod mic;
 mod scheduler;
 mod tray;
+
+/// When the window last hid itself because it lost focus.
+static LAST_FOCUS_HIDE: Mutex<Option<Instant>> = Mutex::new(None);
+/// Whether the window was open when the tray icon was pressed.
+static WAS_OPEN_AT_PRESS: AtomicBool = AtomicBool::new(false);
+/// A focus-loss hide this close to a press was caused by that press.
+const PRESS_HIDE_WINDOW: Duration = Duration::from_millis(300);
+
+fn lock_ignoring_poison<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+/// Pressing the tray icon takes focus from the window, which hides it before
+/// the release arrives. Decide at the press whether the click should close.
+fn was_open_at_press(is_visible: bool, last_focus_hide: Option<Instant>, now: Instant) -> bool {
+    is_visible
+        || last_focus_hide.is_some_and(|hidden| now.duration_since(hidden) <= PRESS_HIDE_WINDOW)
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -91,21 +112,75 @@ pub fn run() {
 
             // Build tray icon with dedicated monochrome template icon
             let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-icon@2x.png"))?;
+            app.on_menu_event(move |app, event| match event.id().as_ref() {
+                "quit" => app.exit(0),
+                "buy_me_a_coffee" => {
+                    if let Err(e) = open::that("https://buymeacoffee.com/piro0919") {
+                        log::warn!("Failed to open Buy Me a Coffee URL: {}", e);
+                    }
+                }
+                _ => {}
+            });
+
+            // The menu is not attached to the tray icon. On macOS 27 tray-icon
+            // presents an attached menu with performClick, which opens it on
+            // another display's icon. Popping it up at the cursor keeps it on
+            // the display that was clicked.
             let _tray = TrayIconBuilder::with_id("main")
                 .icon(tray_icon)
                 .icon_as_template(true)
-                .menu(&menu)
-                .show_menu_on_left_click(false)
-                .on_menu_event(move |app, event| match event.id().as_ref() {
-                    "quit" => app.exit(0),
-                    "buy_me_a_coffee" => {
-                        if let Err(e) = open::that("https://buymeacoffee.com/piro0919") {
-                            log::warn!("Failed to open Buy Me a Coffee URL: {}", e);
+                .on_tray_icon_event(move |tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Right,
+                        button_state: MouseButtonState::Down,
+                        ..
+                    } = event
+                    {
+                        if let Some(window) = tray.app_handle().get_webview_window("main") {
+                            // A menu bar app is not active on its own, and AppKit
+                            // does not keep a popup menu open for an inactive app.
+                            unsafe {
+                                let ns_app: objc2::rc::Retained<objc2::runtime::AnyObject> = objc2::msg_send![
+                                    objc2::class!(NSApplication),
+                                    sharedApplication
+                                ];
+                                let _: () = objc2::msg_send![&*ns_app, activate];
+                            }
+                            if let Err(e) = window.popup_menu(&menu) {
+                                log::warn!("Failed to show tray menu: {}", e);
+                            }
                         }
+                        // tray-icon highlights the icon on press and only clears it on
+                        // a left release, so clear it once the menu has closed.
+                        let _ = tray.with_inner_tray_icon(|inner| {
+                            let Some(item) = inner.ns_status_item() else { return };
+                            let button: Option<objc2::rc::Retained<objc2::runtime::AnyObject>> =
+                                unsafe { objc2::msg_send![&*item, button] };
+                            if let Some(button) = button {
+                                let _: () = unsafe { objc2::msg_send![&*button, highlight: false] };
+                            }
+                        });
+                        return;
                     }
-                    _ => {}
-                })
-                .on_tray_icon_event(|tray, event| {
+
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Down,
+                        ..
+                    } = event
+                    {
+                        if let Some(window) = tray.app_handle().get_webview_window("main") {
+                            let is_visible = window.is_visible().unwrap_or(false);
+                            let open = was_open_at_press(
+                                is_visible,
+                                *lock_ignoring_poison(&LAST_FOCUS_HIDE),
+                                Instant::now(),
+                            );
+                            WAS_OPEN_AT_PRESS.store(open, Ordering::Relaxed);
+                        }
+                        return;
+                    }
+
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
@@ -115,16 +190,7 @@ pub fn run() {
                     {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            // Use match to safely handle is_visible errors
-                            let is_visible = match window.is_visible() {
-                                Ok(v) => v,
-                                Err(e) => {
-                                    log::warn!("Failed to check window visibility: {}", e);
-                                    false
-                                }
-                            };
-
-                            if is_visible {
+                            if WAS_OPEN_AT_PRESS.load(Ordering::Relaxed) {
                                 if let Err(e) = window.hide() {
                                     log::warn!("Failed to hide window: {}", e);
                                 }
@@ -219,6 +285,7 @@ pub fn run() {
                 }
             }
             tauri::WindowEvent::Focused(false) => {
+                *lock_ignoring_poison(&LAST_FOCUS_HIDE) = Some(Instant::now());
                 if let Err(e) = window.hide() {
                     log::warn!("Failed to hide window on focus loss: {}", e);
                 }
@@ -435,5 +502,28 @@ async fn check_for_updates(app: tauri::AppHandle, is_ja: bool) {
                 .title(title)
                 .blocking_show();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn press_on_an_open_window_counts_as_open() {
+        assert!(was_open_at_press(true, None, Instant::now()));
+    }
+
+    #[test]
+    fn press_that_just_hid_the_window_counts_as_open() {
+        let now = Instant::now();
+        assert!(was_open_at_press(false, Some(now), now + Duration::from_millis(50)));
+    }
+
+    #[test]
+    fn press_long_after_the_window_hid_counts_as_closed() {
+        let now = Instant::now();
+        assert!(!was_open_at_press(false, None, now));
+        assert!(!was_open_at_press(false, Some(now), now + Duration::from_secs(1)));
     }
 }

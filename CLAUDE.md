@@ -52,7 +52,7 @@ pnpm tauri dev      # 開発サーバー起動
 ```bash
 TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/galopen.key)" \
 TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(security find-generic-password -a "$USER" -s galopen-tauri-key -w)" \
-APPLE_SIGNING_IDENTITY="-" \
+APPLE_SIGNING_IDENTITY="Okigae Dev" \
 pnpm tauri build
 ```
 
@@ -61,13 +61,16 @@ pnpm tauri build
 `security add-generic-password -a "$USER" -s galopen-tauri-key -w` で登録する
 （パスワードの入力を求められる）。
 
-### APPLE_SIGNING_IDENTITY="-" を忘れると何が起きるか
+### APPLE_SIGNING_IDENTITY を忘れると何が起きるか
 
 - GitHubからダウンロードしたDMGが「壊れている」エラーになる
 - システム設定の「このまま開く」ボタンも表示されない
 - 自動アップデートも失敗する（tar.gz内のアプリも未署名になるため）
-- `APPLE_SIGNING_IDENTITY="-"` を付けるとad-hocコード署名され、「未確認の開発元」警告に変わり、システム設定から許可できる
-- ビルドログに `Signing with identity "-"` が表示されることを確認すること
+- ビルドログに `Signing with identity "Okigae Dev"` が表示されることを確認すること
+
+### `-`（ad-hoc署名）に戻さない
+
+ad-hoc署名だと、macOSのカレンダー許可がビルドごとのcdhashに結び付き、更新のたびに許可が外れて予定の表示も自動オープンも止まる。自己署名の証明書「Okigae Dev」で署名すると、許可は証明書に結び付き、更新しても残る。
 
 ## リリース手順
 
