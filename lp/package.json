@@ -25,7 +25,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.5",
     "@tailwindcss/postcss": "^4.3.4",
     "@types/node": "^20.19.43",
     "@types/react": "^19.3.0",
